@@ -5,3 +5,4 @@ dist
 tsconfig.json
 *.js.map
 *test*
+main.js

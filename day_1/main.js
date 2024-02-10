@@ -1,45 +1,44 @@
-var fs = require('fs');
-var getPuzzleInput = function (fileName) {
-    return fs
-        .readFileSync("".concat(__dirname, "/").concat(fileName, ".txt"))
-        .toString()
-        .replace(/\r/g, '')
-        .trim()
-        .split('\n');
-};
-var getDoubleDigitsFromInput = function (input) {
-    return input.map(function (line) {
-        var regex = /\d/g;
-        var matchedDigits = Array.from(line.matchAll(regex), function (match) { return match[0]; });
+"use strict";
+const fs = require('fs');
+const getPuzzleInput = (fileName) => fs
+    .readFileSync(`${__dirname}/${fileName}.txt`)
+    .toString()
+    .replace(/\r/g, '')
+    .trim()
+    .split('\n');
+const getDoubleDigitsFromInput = (input) => {
+    return input.map((line) => {
+        const regex = /\d/g;
+        const matchedDigits = Array.from(line.matchAll(regex), (match) => match[0]);
         if (matchedDigits.length === 0)
             return 0;
-        var numberRepresentation = matchedDigits.length > 1
+        const numberRepresentation = matchedDigits.length > 1
             ? matchedDigits[0] + matchedDigits[matchedDigits.length - 1]
             : matchedDigits[0] + matchedDigits[0];
         return Number(numberRepresentation);
     });
 };
-var calculateCalibrationSum = function (input) {
-    return input.reduce(function (a, cv) { return a + cv; }, 0);
+const calculateCalibrationSum = (input) => {
+    return input.reduce((a, cv) => a + cv, 0);
 };
-var part1 = function () {
+const part1 = () => {
     console.log('------------------- PART 1 -------------------');
     console.time('How much time to process Part 1');
-    var puzzleInput = getPuzzleInput('p_input');
-    var doubleDigitsFromInput = getDoubleDigitsFromInput(puzzleInput);
-    var calibrationSum = calculateCalibrationSum(doubleDigitsFromInput);
+    const puzzleInput = getPuzzleInput('p_input');
+    const doubleDigitsFromInput = getDoubleDigitsFromInput(puzzleInput);
+    const calibrationSum = calculateCalibrationSum(doubleDigitsFromInput);
     console.timeEnd('How much time to process Part 1');
-    console.log("Sum of all calibration values: ".concat(calibrationSum));
+    console.log(`Sum of all calibration values: ${calibrationSum}`);
     console.log('----------------------------------------------');
 };
 part1();
-var part2 = function () {
+const part2 = () => {
     console.log('------------------- PART 2 -------------------');
     console.time('How much time to process Part 2');
-    var puzzleInput = getPuzzleInput('p_input').map(function (line) {
+    const puzzleInput = getPuzzleInput('p_input').map((line) => {
         return line.toLowerCase();
     });
-    var digitsSpelledOut = {
+    const digitsSpelledOut = {
         one: '1',
         two: '2',
         three: '3',
@@ -50,19 +49,17 @@ var part2 = function () {
         eight: '8',
         nine: '9',
     };
-    var digitSpelled = Object.keys(digitsSpelledOut);
-    var mappedSpelledToDigits = [];
-    for (var _i = 0, puzzleInput_1 = puzzleInput; _i < puzzleInput_1.length; _i++) {
-        var line = puzzleInput_1[_i];
-        var transformPieces = [];
-        for (var i = 0; i < line.length; i++) {
-            var char = line[i];
+    const digitSpelled = Object.keys(digitsSpelledOut);
+    const mappedSpelledToDigits = [];
+    for (const line of puzzleInput) {
+        let transformPieces = [];
+        for (let i = 0; i < line.length; i++) {
+            const char = line[i];
             if (Number.isInteger(Number(char))) {
                 transformPieces.push(char);
                 continue;
             }
-            for (var _a = 0, digitSpelled_1 = digitSpelled; _a < digitSpelled_1.length; _a++) {
-                var word = digitSpelled_1[_a];
+            for (const word of digitSpelled) {
                 if (line.startsWith(word, i)) {
                     transformPieces.push(digitsSpelledOut[word]);
                 }
@@ -79,10 +76,10 @@ var part2 = function () {
             return line.replaceAll(regex, (match) => digitsSpelledOut[match]);
         });
     */
-    var doubleDigitsFromInput = getDoubleDigitsFromInput(mappedSpelledToDigits);
-    var calibrationSum = calculateCalibrationSum(doubleDigitsFromInput);
+    const doubleDigitsFromInput = getDoubleDigitsFromInput(mappedSpelledToDigits);
+    const calibrationSum = calculateCalibrationSum(doubleDigitsFromInput);
     console.timeEnd('How much time to process Part 2');
-    console.log("Sum of all calibration values: ".concat(calibrationSum));
+    console.log(`Sum of all calibration values: ${calibrationSum}`);
     console.log('----------------------------------------------');
 };
 part2();
