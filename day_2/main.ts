@@ -11,6 +11,8 @@ interface IRound {
 interface IGame {
     id: number;
     rounds: IRound[];
+
+    minimas: { red: number; green: number; blue: number };
 }
 
 enum GemType {
@@ -43,19 +45,23 @@ class Game implements IGame {
     id;
     rounds;
 
+    minimas = { red: 0, green: 0, blue: 0 };
+
     constructor(id: number) {
         this.id = id;
         this.rounds = [] as IRound[];
     }
 
     toString(): string {
-        let roundsString = this.rounds
+        const roundsString = this.rounds
             .map((round) => {
                 return `\n\t\t{ redGems: ${round.redGems}, greenGems: ${round.greenGems}, blueGems: ${round.blueGems} }`;
             })
             .join(',');
 
-        return `Game { id: ${this.id}, rounds: [${roundsString}] }`;
+        const minimasString = `\n\t\t{ red: ${this.minimas.red}, green: ${this.minimas.green}, blue: ${this.minimas.blue} }`;
+
+        return `Game { id: ${this.id}, rounds: [${roundsString}], minimas: ${minimasString}`;
     }
 }
 
@@ -147,3 +153,32 @@ function part1(input: string[]) {
 }
 
 part1(getPuzzleInput('day_2_input'));
+
+function part2(input: string[]) {
+    console.log('------------------- PART 2 -------------------');
+    console.time('How much time to process Part 2');
+
+    let allGames = parseInputToGames(input) as IGame[];
+
+    let gamePowers = [] as number[];
+
+    allGames.forEach((game) => {
+        game.rounds.forEach((round) => {
+            game.minimas.red = Math.max(game.minimas.red, round.redGems);
+            game.minimas.green = Math.max(game.minimas.green, round.greenGems);
+            game.minimas.blue = Math.max(game.minimas.blue, round.blueGems);
+        });
+
+        gamePowers.push(
+            game.minimas.red * game.minimas.green * game.minimas.blue
+        );
+    });
+
+    const powerSum = gamePowers.reduce((acc, curr) => acc + curr, 0);
+
+    console.timeEnd('How much time to process Part 2');
+    console.log(`Sum of the power of these sets: ${powerSum}`);
+    console.log('----------------------------------------------');
+}
+
+part2(getPuzzleInput('day_2_input'));
