@@ -6,3 +6,4 @@ tsconfig.json
 *.js.map
 *test*
 main.js
+/.vscode

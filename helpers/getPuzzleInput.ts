@@ -1,6 +1,6 @@
 const fs = require('fs');
 
-const getPuzzleInput = (fileName: string) =>
+const getPuzzleInput = (fileName: string): string[] =>
     fs
         .readFileSync(`${__dirname}/../data/${fileName}.txt`)
         .toString()
