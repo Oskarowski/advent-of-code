@@ -33,6 +33,28 @@ class ParsedNumber {
     }
 }
 
+class Gear {
+    coordinates: Coordinates;
+    gearRatio: number;
+    adjacentTo: ParsedNumber[];
+
+    constructor(coordinates: Coordinates) {
+        this.coordinates = coordinates;
+        this.gearRatio = -1;
+        this.adjacentTo = [];
+    }
+
+    toString(): string {
+        const adjacentTo = this.adjacentTo
+            .map((adTo) => {
+                return ` ${adTo.number} `;
+            })
+            .join(',');
+
+        return `Gear: { x: ${this.coordinates.x}, y: ${this.coordinates.y} } \n Adjacent to: [${adjacentTo}] \n Gear Ratio: ${this.gearRatio} \n`;
+    }
+}
+
 function isNumber(char: string): boolean {
     return !isNaN(parseInt(char));
 }
@@ -93,6 +115,26 @@ function extractNumbersWithCoordinates(input: string[]): any {
     }
 
     return parsedNumbers;
+}
+
+function extractGearsFromSchematic(schematic: string[]): Gear[] {
+    const GEAR_SYMBOL = '*' as const;
+
+    const gears: Gear[] = [];
+
+    for (let row = 0; row < BORDER_HEIGHT; row++) {
+        const line = schematic[row];
+
+        for (let col = 0; col < BORDER_WIDTH; col++) {
+            const char = line[col];
+
+            if (char === GEAR_SYMBOL) {
+                gears.push(new Gear({ x: col, y: row }));
+            }
+        }
+    }
+
+    return gears;
 }
 
 function getAdjacentNumberCoordinates(
@@ -174,4 +216,70 @@ function part1(input: string[]): void {
     console.log('----------------------------------------------');
 }
 
+function part2(input: string[]): void {
+    console.log('------------------- PART 2 -------------------');
+    console.time('How much time to process Part 2');
+
+    const schematic: string[] = input;
+
+    BORDER_WIDTH = schematic[0].length;
+    BORDER_HEIGHT = schematic.length;
+
+    const gears: Gear[] = extractGearsFromSchematic(schematic);
+
+    const gearMap = new Map<string, Gear>();
+    gears.forEach((gear) => {
+        gearMap.set(`${gear.coordinates.x},${gear.coordinates.y}`, gear);
+    });
+
+    const extractedParsedNumbers: ParsedNumber[] =
+        extractNumbersWithCoordinates(schematic);
+
+    // This is the old way of doing it, but it's not efficient in compression to the way with using Map
+    /* 
+    for (const parsedNumber of extractedParsedNumbers) {
+        const border = getAdjacentNumberCoordinates(parsedNumber);
+        parsedNumber.border = border;
+
+        for (const { x, y } of border) {
+            const foundGear = gears.find(
+                (gear) => gear.coordinates.x === x && gear.coordinates.y === y
+            );
+            if (foundGear) {
+                foundGear.adjacentTo.push(parsedNumber);
+            }
+        }
+    } 
+    */
+
+    extractedParsedNumbers.forEach((parsedNumber) => {
+        const border = getAdjacentNumberCoordinates(parsedNumber);
+        parsedNumber.border = border;
+
+        for (const { x, y } of border) {
+            const gear = gearMap.get(`${x},${y}`);
+            if (gear) {
+                gear.adjacentTo.push(parsedNumber);
+            }
+        }
+    });
+
+    const properGears = gears.filter((gear) => {
+        if (gear.adjacentTo.length === 2) {
+            gear.gearRatio =
+                gear.adjacentTo[0].number * gear.adjacentTo[1].number;
+            return gear;
+        }
+    });
+
+    const sum = properGears.reduce((acc, gear) => {
+        return acc + gear.gearRatio;
+    }, 0);
+
+    console.timeEnd('How much time to process Part 2');
+    console.log(`Sum of all of the gear ratios in engine schematic: ${sum}`);
+    console.log('----------------------------------------------');
+}
+
 part1(getPuzzleInput('day_3_input'));
+part2(getPuzzleInput('day_3_input'));
