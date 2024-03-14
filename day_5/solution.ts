@@ -229,3 +229,48 @@ function part1(input: string[]) {
 
 // part1(getPuzzleInput('day_5_t_input')); // 35
 part1(getPuzzleInput('day_5_input')); // 388071289
+
+const parseSeedsAsRanges = (seedsString: string): Seed[] => {
+    const seeds: Seed[] = [];
+    seedsString = seedsString.slice(7);
+
+    const regex = /\b\d+\s+\d+\b/g;
+    const matchedPairs = seedsString.match(regex);
+
+    if (matchedPairs) {
+        matchedPairs.forEach((pair) => {
+            const [firstSeed, seedsRange] = pair.split(' ');
+            const startOfSeedRange = parseInt(firstSeed, 10);
+            const seedsRangeLength = parseInt(seedsRange, 10);
+
+            for (let index = 0; index < seedsRangeLength; index++) {
+                const seedId = startOfSeedRange + index;
+                seeds.push(new Seed(seedId));
+            }
+        });
+    }
+
+    return seeds;
+};
+
+//TODO - refactor this to work for such huge amount of numbers
+function part2(input: string[]) {
+    // console.log('------------------- PART 2 -------------------');
+    // console.time('How much time to process Part 2');
+
+    const seedsString = input.splice(0, 2)[0];
+    const almanacMaps: Map<MapType, AlmanacMap[]> = parseAlmanacMaps(input);
+    const seeds: Seed[] = identifySeedsData(
+        parseSeedsAsRanges(seedsString),
+        almanacMaps
+    );
+
+    const lowestLocation = Math.min(...seeds.map((seed) => seed.location));
+
+    // console.timeEnd('How much time to process Part 2');
+    console.log(`Lowest location number is: ${lowestLocation}`);
+    // console.log('----------------------------------------------');
+}
+
+// part2(getPuzzleInput('day_5_t_input')); // 46
+// part2(getPuzzleInput('day_5_input')); //
