@@ -1,5 +1,7 @@
 //@ts-nocheck
 import { getPuzzleInput } from '../helpers/getPuzzleInput';
+import * as fs from 'fs';
+
 // const { getPuzzleInput } = require('../helpers/getPuzzleInput');
 
 enum HandType {
@@ -25,9 +27,9 @@ class Hand {
     }
 
     toString() {
-        return `Type: ${HandType[this.type]}, Bid: ${
-            this.bid
-        } \n Cards: ${this.cards.join('')} \n`;
+        return `Type: ${HandType[this.type]} Cards: ${this.cards.join(
+            ''
+        )} Bid: ${this.bid}`;
     }
 }
 
@@ -77,34 +79,34 @@ function determineHandTypePart2(hand: Hand): void {
     for (let card of hand.cards) {
         if (card == 'J' || card == 'j') {
             wildcards++;
-            continue; // Skip wildcards for now
+            continue;
         }
         cardCounts[card] = (cardCounts[card] || 0) + 1;
     }
 
     const values = Object.values(cardCounts);
-    const uniqueValues = new Set(values);
-
-    if (uniqueValues.size === 0 && wildcards >= 5) {
-        hand.type = HandType.FiveOfAKind;
-        return;
-    }
+    const keys = Object.keys(cardCounts);
 
     // Five of a kind
-    if (uniqueValues.size === 1 && Math.max(...values) + wildcards >= 5) {
+    if (keys.length === 1 || wildcards === 5) {
         hand.type = HandType.FiveOfAKind;
         return;
     }
 
     // Four of a kind
-    if (uniqueValues.size <= 2 && Math.max(...values) + wildcards >= 4) {
+    if (
+        (keys.length === 2 && values.includes(4)) ||
+        (keys.length === 2 && values.includes(3) && wildcards >= 1) ||
+        (keys.length === 2 && values.includes(2) && wildcards >= 2) ||
+        (wildcards === 3 && keys.length === 2)
+    ) {
         hand.type = HandType.FourOfAKind;
         return;
     }
 
     // Full house
     if (
-        (values.length == 2 && wildcards === 1) ||
+        (values.length === 2 && wildcards === 1) ||
         (values.filter((val) => val === 3).length === 1 &&
             values.filter((val) => val === 2).length === 1)
     ) {
@@ -114,8 +116,10 @@ function determineHandTypePart2(hand: Hand): void {
 
     // Three of a kind
     if (
-        (values.length === 2 && wildcards >= 2) ||
-        values.filter((val) => val === 3).length === 1
+        (values.length === 2 && wildcards === 1) ||
+        values.filter((val) => val === 3).length === 1 ||
+        (values.length === 3 && wildcards === 2) ||
+        (values.filter((val) => val === 2).length === 1 && wildcards === 1)
     ) {
         hand.type = HandType.ThreeOfAKind;
         return;
@@ -124,14 +128,17 @@ function determineHandTypePart2(hand: Hand): void {
     // Two pairs
     if (
         values.filter((val) => val === 2).length === 2 ||
-        values[0] + values[1] + wildcards >= 4
+        (values.filter((val) => val === 2).length === 1 && wildcards === 1)
     ) {
         hand.type = HandType.TwoPairs;
         return;
     }
 
     // One pair
-    if (uniqueValues.size <= 4 && (values.includes(2) || wildcards >= 1)) {
+    if (
+        values.filter((val) => val === 2).length === 1 ||
+        (values.length === 4 && wildcards >= 1)
+    ) {
         hand.type = HandType.OnePair;
         return;
     }
@@ -235,12 +242,12 @@ function part1(input: string[]) {
 }
 
 // part1(getPuzzleInput('day_07_t_input'));
-// part1(getPuzzleInput('day_07_input'));
 // part1(getPuzzleInput('day_07_t1_input'));
+part1(getPuzzleInput('day_07_input'));
 
 function part2(input: string[]) {
-    // console.log('------------------- PART 2 -------------------');
-    // console.time('How much time to process Part 2');
+    console.log('------------------- PART 2 -------------------');
+    console.time('How much time to process Part 2');
     const hands = parseInputToHands(input, 2);
 
     hands.sort((handA, handB) => {
@@ -260,26 +267,34 @@ function part2(input: string[]) {
             }
         }
 
-        return 0;
+        return null;
     });
-
     const totalWinnings = hands.reduce((acc, hand, index) => {
         return (acc += hand.bid * (index + 1));
     }, 0);
 
-    hands.forEach((hand) => {
-        console.log(hand.toString());
-    });
+    // saveHandsToFile(hands);
 
-    // console.timeEnd('How much time to process Part 2');
-    console.log(`Total Winnings: ${totalWinnings}`);
-    // console.log('----------------------------------------------');
+    console.timeEnd('How much time to process Part 2');
+    console.log(`Total Winnings with J as wildcard: ${totalWinnings}`);
+    console.log('----------------------------------------------');
 }
 
-// part2(getPuzzleInput('day_07_t_input')); //
+// part2(getPuzzleInput('day_07_t_input')); //5905
 // part2(getPuzzleInput('day_07_t1_input')); //
+// part2(getPuzzleInput('day_07_t2_input')); // 6839
+// part2(getPuzzleInput('day_07_t3_input')); // just to get the correct ordered hands
+
 part2(getPuzzleInput('day_07_input'));
-// 250 507 454 to low
-// 252 753 670 to low
-// 252 532 599 not right
-// 252 910 023 to high
+
+function saveHandsToFile(hands: Hand[]) {
+    const filename = 'hands_output.txt';
+    const stream = fs.createWriteStream(filename);
+
+    hands.forEach((hand, ind) => {
+        stream.write(hand.toString() + ` Rank: ${ind + 1}` + '\n');
+    });
+
+    stream.end();
+    console.log(`Hands written to ${filename}`);
+}
