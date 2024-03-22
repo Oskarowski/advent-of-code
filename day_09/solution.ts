@@ -17,10 +17,13 @@ function extrapolate(history: History) {
         const layer = history.layers[i];
         const deeperLayer = history.layers[i - 1];
 
-        const extrapolated: number =
+        const extrapolatedRight: number =
             layer[layer.length - 1] + deeperLayer[deeperLayer.length - 1];
 
-        deeperLayer.push(extrapolated);
+        const extrapolatedLeft: number = deeperLayer[0] - layer[0];
+
+        deeperLayer.push(extrapolatedRight);
+        deeperLayer.unshift(extrapolatedLeft);
     }
 }
 
@@ -76,9 +79,27 @@ function part1(input: string[]) {
     }, 0);
 
     console.timeEnd('How much time to process Part 1');
-    console.log(`sum of these extrapolated values: ${sum}`);
+    console.log(`Sum of these extrapolated values from right: ${sum}`);
     console.log('----------------------------------------------');
 }
 
 // part1(getPuzzleInput('day_09_t_input'));
 part1(getPuzzleInput('day_09_input'));
+
+function part2(input: string[]) {
+    console.log('------------------- PART 2 -------------------');
+    console.time('How much time to process Part 2');
+    const histories = parseInputIntoHistories(input);
+
+    const sum = histories.reduce((a, c) => {
+        a += c.layers[0][0];
+        return a;
+    }, 0);
+
+    console.timeEnd('How much time to process Part 2');
+    console.log(`Sum of these extrapolated values from left: ${sum}`);
+    console.log('----------------------------------------------');
+}
+
+// part2(getPuzzleInput('day_09_t_input'));
+part2(getPuzzleInput('day_09_input'));
