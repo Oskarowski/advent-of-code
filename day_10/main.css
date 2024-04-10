@@ -1,0 +1,136 @@
+/* styles.css */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+    /* background: #27282c; */
+    box-sizing: border-box;
+
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+input{
+    text-align: center;
+}
+
+label{
+    font-weight: bold;
+}
+
+#query-container {
+    text-align: center;
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center; 
+    text-align: center;
+}
+
+#paste-container {
+    text-align: center;
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center; 
+}
+
+#query-container label {
+
+    margin-right: 10px;
+}
+
+#maze-container {
+    justify-content: center;
+    border: 1px solid black;
+    padding: 2em;
+}
+
+.row {
+    display: flex;
+    justify-content: center;
+}
+
+.cell {
+    box-sizing: border-box;
+    width: 0.8em;
+    aspect-ratio: 1/1;
+    /* border: 1px solid black; */
+    cursor: pointer;
+    text-align: center;
+    flex-shrink: 0; /* Prevent cells from shrinking */
+}
+
+.pipe {
+    background-color: #5bc0de;
+}
+
+/* Remove borders from inner tiles */
+.border-tile:not(.top):not(.bottom):not(.left):not(.right) {
+    border: none;
+}
+
+/* Add border to top edge */
+.border-tile.top {
+    border-top: 1px solid black;
+}
+
+/* Add border to bottom edge */
+.border-tile.bottom {
+    border-bottom: 1px solid black;
+}
+
+/* Add border to left edge */
+.border-tile.left {
+    border-left: 1px solid black;
+}
+
+/* Add border to right edge */
+.border-tile.right {
+    border-right: 1px solid black;
+}
+
+/* --------------------------------------------------------- */
+
+.forming-loop {
+    background-color: brown;
+}
+
+.enclosed-by-loop {
+    background-color: #f0ad4e;
+}
+
+
+
+#enclosed-tiles-count,
+#farthest-point {
+    color: #5cb85c; 
+}
+
+#maze-stats label {
+    margin-right: 10px;
+}
+
+#query-container,
+#paste-container,
+#maze-stats {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+#maze-stats div {
+    margin-bottom: 10px;
+    
+}
+
+#generate-maze-btn {
+    display: block;
+    margin: 2em auto; 
+}
+
+textarea {
+    resize: none;
+  }

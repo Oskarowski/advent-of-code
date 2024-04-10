@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Pipe Maze Builder</title>
+        <link rel="stylesheet" type="text/css" href="./main.css" />
+        <link rel="stylesheet" type="text/css" href="./css/button-style.css" />
+        <link rel="stylesheet" type="text/css" href="./css/modal-style.css" />
+        <script type="module" src="./visualization/solution.js"></script>
+        <script type="module" src="./visualization/Maze.js"></script>
+        <script type="module" src="./script.js"></script>
+    </head>
+
+    <body class="hex">
+        <div id="myModal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <p id="modal-message"></p>
+            </div>
+        </div>
+
+        <h1>Pipe Maze Builder</h1>
+
+        <div id="query-container">
+            <label for="maze-start-shape">Start tile pipe shape: </label>
+            <input type="text" max="1" id="maze-start-shape" />
+        </div>
+
+        <div id="paste-container">
+            <label for="maze-text">Paste Maze:</label>
+            <textarea
+                id="maze-text"
+                rows="5"
+                cols="30"
+                placeholder="Place to paste puzzle input"
+            ></textarea>
+        </div>
+
+        <button class="button" id="generate-maze-btn" style="--color: #1e9bff">
+            Generate Maze
+        </button>
+
+        <div id="maze-stats">
+            <div>
+                <label for="enclosed-tiles-count"
+                    >Tiles Enclosed by Loop:
+                </label>
+                <span id="enclosed-tiles-count">-1</span>
+            </div>
+            <div>
+                <label for="farthest-point">Farthest Point from Start: </label>
+                <span id="farthest-point">-1</span>
+            </div>
+        </div>
+
+        <div id="maze-container"></div>
+    </body>
+</html>
