@@ -126,6 +126,7 @@ class SolutionDay11 {
     }
 
     buildGraph(): Map<string, Node> {
+        console.log('Building graph...');
         const graph = new Map<string, Node>();
 
         // Create nodes for galaxies and voids
@@ -157,6 +158,7 @@ class SolutionDay11 {
         }
 
         this.cosmicSpaceGraph = graph;
+        console.log('Space graph built.');
         return graph;
     }
 
@@ -243,6 +245,10 @@ class SolutionDay11 {
         return (this.countGalaxies * (this.countGalaxies - 1)) / 2;
     }
 
+    findShortestDistanceBetweenGalaxies(galaxyA: Galaxy, galaxyB: Galaxy): number {
+        return Math.abs(galaxyA.x - galaxyB.x) + Math.abs(galaxyA.y - galaxyB.y);
+    }
+
     sumLengthOfShortestPathsForEachGalaxy() {
         const pairs: [Galaxy, Galaxy][] = [];
         const galaxyKeys = Array.from(this.galaxiesMap.keys());
@@ -255,22 +261,27 @@ class SolutionDay11 {
                 const galaxyA = this.galaxiesMap.get(galaxyKeys[i])!;
                 const galaxyB = this.galaxiesMap.get(galaxyKeys[j])!;
 
-                const toGraphKey = (galaxy: Galaxy) => `${galaxy.y},${galaxy.x}`;
+                // const toGraphKey = (galaxy: Galaxy) => `${galaxy.y},${galaxy.x}`;
 
-                const startNode = this.cosmicSpaceGraph.get(toGraphKey(galaxyA));
-                const goalNode = this.cosmicSpaceGraph.get(toGraphKey(galaxyB));
+                // const startNode = this.cosmicSpaceGraph.get(toGraphKey(galaxyA));
+                // const goalNode = this.cosmicSpaceGraph.get(toGraphKey(galaxyB));
 
-                if(!startNode || !goalNode) {
-                    throw new Error('Start or goal node not found in the graph.');
-                }
+                // if(!startNode || !goalNode) {
+                //     throw new Error('Start or goal node not found in the graph.');
+                // }
 
-                const shortestPath = this.findShortestPath(startNode, goalNode);
+                // const shortestPath = this.findShortestPath(startNode, goalNode);
+                const shortestDistance = this.findShortestDistanceBetweenGalaxies(galaxyA, galaxyB);
 
-                if (shortestPath) {
-                    sumOfShortestPaths += shortestPath.length-1;
-                }
+                sumOfShortestPaths += shortestDistance;
 
-                // console.log(`Galaxy A ${galaxyA.id} -> Galaxy B ${galaxyB.id}:`, shortestPath?.length, '\n')
+                // if (shortestPath) {
+                //     sumOfShortestPaths += shortestPath.length-1;
+                // }
+
+                // console.log(`Galaxy ${galaxyA.id} x${galaxyA.x},y${galaxyA.y}  -> Galaxy ${galaxyB.id} x${galaxyB.x},y${galaxyB.y}:`, shortestDistance, '\n')
+                // console.log(`Galaxy A ${galaxyA.id} -> Galaxy B ${galaxyB.id}:`, shortestDistance, '\n')
+
 
                 pairs.push([galaxyA, galaxyB]);
             }
@@ -318,11 +329,11 @@ class SolutionDay11 {
     console.log('Day 11');
     const solution = new SolutionDay11();
 
-    solution.setPuzzleInput(getPuzzleInput('day_11_t_input'));
-    // solution.setPuzzleInput(getPuzzleInput('day_11_input'));
+    // solution.setPuzzleInput(getPuzzleInput('day_11_t_input'));
+    solution.setPuzzleInput(getPuzzleInput('day_11_input'));
     solution.parsePuzzleInputIntoGalaxyGrid();
     solution.processCosmicExpansion();
-    solution.buildGraph();
+    // solution.buildGraph();
     // solution.printGalaxyMap();
 
 
