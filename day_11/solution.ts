@@ -70,12 +70,52 @@ class SolutionDay11 {
         });
     }
 
-    processCosmicExpansion() {
-        let newGalaxyGrid: Array<Array<Galaxy | Void>> = [];
+    processCosmicExpansion(coefficientOfCosmicExpansion: number) {
+        this.remapSpaceObjectsCoordinates();
 
         const isEmpty = (row: Array<Galaxy | Void>) => {
             return row.every((cell) => cell instanceof Void);
         };
+
+        for (let wRow = 0; wRow < this.galaxyGrid.length; wRow++) {
+            const row = this.galaxyGrid[wRow];
+
+            if (isEmpty(row)) {
+                for (let i = wRow; i < this.galaxyGrid.length; i++) {
+                    const rowPointer = this.galaxyGrid[i];
+
+                    for (const spaceObject of rowPointer) {
+                        spaceObject.setCoordinates(
+                            spaceObject.x,
+                            spaceObject.y + coefficientOfCosmicExpansion - 1
+                        );
+                    }
+                }
+            }
+        }
+
+        for (let wColumn = 0; wColumn < this.galaxyGrid[0].length; wColumn++) {
+            const column = this.galaxyGrid.map((row) => row[wColumn]);
+
+            if (isEmpty(column)) {
+                for (let i = wColumn; i < this.galaxyGrid[0].length; i++) {
+                    for (let j = 0; j < this.galaxyGrid.length; j++) {
+                        const spaceObject = this.galaxyGrid[j][i];
+                        spaceObject.setCoordinates(
+                            spaceObject.x + coefficientOfCosmicExpansion - 1,
+                            spaceObject.y
+                        );
+                    }
+                }
+            }
+        }
+    }
+
+    processGalaxyGrdExpansion() {
+        const isEmpty = (row: Array<Galaxy | Void>) => {
+            return row.every((cell) => cell instanceof Void);
+        };
+        let newGalaxyGrid: Array<Array<Galaxy | Void>> = [];
 
         for (let wRow = 0; wRow < this.galaxyGrid.length; wRow++) {
             const row = this.galaxyGrid[wRow];
@@ -148,7 +188,6 @@ class SolutionDay11 {
                 [row, col + 1],
             ];
             for (const [neighborRow, neighborCol] of neighborsCoords) {
-
                 const neighborKey = `${neighborRow},${neighborCol}`;
                 if (graph.has(neighborKey)) {
                     const neighbor = graph.get(neighborKey)!;
@@ -245,12 +284,16 @@ class SolutionDay11 {
         return (this.countGalaxies * (this.countGalaxies - 1)) / 2;
     }
 
-    findShortestDistanceBetweenGalaxies(galaxyA: Galaxy, galaxyB: Galaxy): number {
-        return Math.abs(galaxyA.x - galaxyB.x) + Math.abs(galaxyA.y - galaxyB.y);
+    findShortestDistanceBetweenGalaxies(
+        galaxyA: Galaxy,
+        galaxyB: Galaxy
+    ): number {
+        return (
+            Math.abs(galaxyA.x - galaxyB.x) + Math.abs(galaxyA.y - galaxyB.y)
+        );
     }
 
     sumLengthOfShortestPathsForEachGalaxy() {
-        const pairs: [Galaxy, Galaxy][] = [];
         const galaxyKeys = Array.from(this.galaxiesMap.keys());
 
         let sumOfShortestPaths = 0;
@@ -271,7 +314,8 @@ class SolutionDay11 {
                 // }
 
                 // const shortestPath = this.findShortestPath(startNode, goalNode);
-                const shortestDistance = this.findShortestDistanceBetweenGalaxies(galaxyA, galaxyB);
+                const shortestDistance =
+                    this.findShortestDistanceBetweenGalaxies(galaxyA, galaxyB);
 
                 sumOfShortestPaths += shortestDistance;
 
@@ -279,21 +323,20 @@ class SolutionDay11 {
                 //     sumOfShortestPaths += shortestPath.length-1;
                 // }
 
-                // console.log(`Galaxy ${galaxyA.id} x${galaxyA.x},y${galaxyA.y}  -> Galaxy ${galaxyB.id} x${galaxyB.x},y${galaxyB.y}:`, shortestDistance, '\n')
                 // console.log(`Galaxy A ${galaxyA.id} -> Galaxy B ${galaxyB.id}:`, shortestDistance, '\n')
-
-
-                pairs.push([galaxyA, galaxyB]);
             }
         }
 
         return sumOfShortestPaths;
     }
 
-    info(){
+    info() {
         console.log('Galaxies:', this.countGalaxies);
 
-        console.log('Amount of pairs of galaxies:', this.countAmountOfPairsOfGalaxies());
+        console.log(
+            'Amount of pairs of galaxies:',
+            this.countAmountOfPairsOfGalaxies()
+        );
 
         console.log('Width of the galaxy grid:', this.galaxyGrid[0].length);
         console.log('Height of the galaxy grid:', this.galaxyGrid.length);
@@ -317,28 +360,40 @@ class SolutionDay11 {
         for (let y = 0; y < this.galaxyGrid.length; y++) {
             for (let x = 0; x < this.galaxyGrid[y].length; x++) {
                 const cell = this.galaxyGrid[y][x];
-                if (cell instanceof Galaxy) {
-                    process.stdout.write(cell.toString());
-                }
+                // if (cell instanceof Galaxy) {
+                //     process.stdout.write(cell.toString());
+                // }
+                process.stdout.write(
+                    ` (${cell.x.toString().padStart(2, '0')},${cell.y
+                        .toString()
+                        .padStart(2, '0')}) `
+                );
             }
+            console.log();
         }
     }
 }
 
 (function () {
-    console.log('Day 11');
+    console.log('------------------- Day 11 -------------------');
+    console.time('How much time to process Puzzle');
+
     const solution = new SolutionDay11();
 
-    // solution.setPuzzleInput(getPuzzleInput('day_11_t_input'));
-    solution.setPuzzleInput(getPuzzleInput('day_11_input'));
+    solution.setPuzzleInput(getPuzzleInput('day_11_t_input'));
+    // solution.setPuzzleInput(getPuzzleInput('day_11_input'));
     solution.parsePuzzleInputIntoGalaxyGrid();
-    solution.processCosmicExpansion();
+    // solution.processGalaxyGrdExpansion();
+    solution.processCosmicExpansion(1000000);
     // solution.buildGraph();
     // solution.printGalaxyMap();
 
-
     solution.info();
-    console.log(solution.sumLengthOfShortestPathsForEachGalaxy());
+    console.log();
 
-    // solution.printGalaxyMapWithCoordinates();
+    console.timeEnd('How much time to process Puzzle');
+    console.log(
+        `Sum of these lengths is ${solution.sumLengthOfShortestPathsForEachGalaxy()}`
+    );
+    console.log('----------------------------------------------');
 })();
