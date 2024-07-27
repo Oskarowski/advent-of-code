@@ -1,0 +1,27 @@
+{
+    "compilerOptions": {
+        "target": "ESNext",
+        "module": "es2022",
+        "moduleResolution": "node",
+        "esModuleInterop": true,
+        "forceConsistentCasingInFileNames": true,
+        "strict": true,
+        // "sourceMap": true,
+        "skipLibCheck": true,
+        "outDir": "./dist"
+    },
+    "exclude": [
+        "day_1/**/*.ts",
+        "day_2/**/*.ts",
+        "day_3/**/*.ts",
+        "day_4/**/*.ts",
+        "day_5/**/*.ts",
+        "day_06/**/*.ts",
+        "day_07/**/*.ts",
+        "day_08/**/*.ts",
+        "day_**/**/*.ts",
+        "helpers/**/*.ts",
+        "node_modules",
+        "dist"
+    ]
+}

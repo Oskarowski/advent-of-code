@@ -2,7 +2,6 @@
 /node_modules
 out
 dist
-tsconfig.json
 *.js.map
 *test*
 main.js
