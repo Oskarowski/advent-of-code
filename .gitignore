@@ -3,6 +3,5 @@
 out
 dist
 *.js.map
-*test*
 main.js
 /.vscode/settings.json
