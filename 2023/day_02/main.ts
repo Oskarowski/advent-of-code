@@ -1,4 +1,4 @@
-import { getPuzzleInput } from '../helpers/getPuzzleInput';
+import { getPuzzleInput } from '../helpers/getPuzzleInput.js';
 
 const pi = getPuzzleInput('day_2_t_input');
 

@@ -1,4 +1,4 @@
-import { getPuzzleInput } from '../helpers/getPuzzleInput';
+import { getPuzzleInput } from '../helpers/getPuzzleInput.js';
 
 class Tile {
     x: number;

@@ -1,5 +1,4 @@
-//@ts-nocheck
-import { getPuzzleInput } from '../helpers/getPuzzleInput';
+import { getPuzzleInput } from '../helpers/getPuzzleInput.js';
 import * as fs from 'fs';
 
 // const { getPuzzleInput } = require('../helpers/getPuzzleInput');
