@@ -1,12 +1,4 @@
-const fs = require('fs');
-
-const getPuzzleInput = (fileName: string) =>
-    fs
-        .readFileSync(`${__dirname}/${fileName}.txt`)
-        .toString()
-        .replace(/\r/g, '')
-        .trim()
-        .split('\n');
+import { getPuzzleInput } from '../helpers/getPuzzleInput.js';
 
 const getDoubleDigitsFromInput = (input: string[]) => {
     return input.map((line: string) => {
@@ -35,7 +27,7 @@ const part1 = () => {
     console.log('------------------- PART 1 -------------------');
     console.time('How much time to process Part 1');
 
-    const puzzleInput = getPuzzleInput('p_input');
+    const puzzleInput = getPuzzleInput('day_01_input');
 
     const doubleDigitsFromInput = getDoubleDigitsFromInput(puzzleInput);
 
@@ -52,7 +44,7 @@ part1();
 const part2 = () => {
     console.log('------------------- PART 2 -------------------');
     console.time('How much time to process Part 2');
-    const puzzleInput = getPuzzleInput('p_input').map((line: string) => {
+    const puzzleInput = getPuzzleInput('day_01_input').map((line: string) => {
         return line.toLowerCase();
     });
 
