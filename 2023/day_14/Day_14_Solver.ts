@@ -40,6 +40,102 @@ class Day_14_Solver implements PuzzleSolver {
         } while (moved);
     }
 
+    canMoveRight(grid: Grid, row: number, col: number): boolean {
+        return col < grid[row].length - 1 && grid[row][col + 1] === '.';
+    }
+
+    moveRockRight(grid: Grid, row: number, col: number): boolean {
+        if (!this.canMoveRight(grid, row, col)) {
+            return false;
+        }
+
+        grid[row][col] = '.';
+        grid[row][col + 1] = 'O';
+
+        return true;
+    }
+
+    moveAllRocksToEastEdge(): void {
+        let grid = this.parsedData;
+        let moved = false;
+        do {
+            moved = false;
+            for (let row = 0; row < grid.length; row++) {
+                for (let col = 0; col < grid[row].length; col++) {
+                    if (grid[row][col] === 'O') {
+                        if (this.moveRockRight(grid, row, col)) {
+                            moved = true;
+                        }
+                    }
+                }
+            }
+        } while (moved);
+    }
+
+    canMoveLeft(grid: Grid, row: number, col: number): boolean {
+        return col > 0 && grid[row][col - 1] === '.';
+    }
+
+    moveRockLeft(grid: Grid, row: number, col: number): boolean {
+        if (!this.canMoveLeft(grid, row, col)) {
+            return false;
+        }
+
+        grid[row][col] = '.';
+        grid[row][col - 1] = 'O';
+
+        return true;
+    }
+
+    moveAllRocksToWestEdge(): void {
+        let grid = this.parsedData;
+        let moved = false;
+        do {
+            moved = false;
+            for (let row = 0; row < grid.length; row++) {
+                for (let col = grid[row].length - 1; col >= 0; col--) {
+                    if (grid[row][col] === 'O') {
+                        if (this.moveRockLeft(grid, row, col)) {
+                            moved = true;
+                        }
+                    }
+                }
+            }
+        } while (moved);
+    }
+
+    canMoveDown(grid: Grid, row: number, col: number): boolean {
+        return row < grid.length - 1 && grid[row + 1][col] === '.';
+    }
+
+    moveRockDown(grid: Grid, row: number, col: number): boolean {
+        if (!this.canMoveDown(grid, row, col)) {
+            return false;
+        }
+
+        grid[row][col] = '.';
+        grid[row + 1][col] = 'O';
+
+        return true;
+    }
+
+    moveAllRocksToSouthEdge(): void {
+        let grid = this.parsedData;
+        let moved = false;
+        do {
+            moved = false;
+            for (let row = 0; row < grid.length; row++) {
+                for (let col = 0; col < grid[row].length; col++) {
+                    if (grid[row][col] === 'O') {
+                        if (this.moveRockDown(grid, row, col)) {
+                            moved = true;
+                        }
+                    }
+                }
+            }
+        } while (moved);
+    }
+
     calculateTotalLoadOnNorthBeam(): number {
         let totalDamage = 0;
         const amountOfRows = this.parsedData.length;
@@ -109,8 +205,20 @@ class Day_14_Solver implements PuzzleSolver {
         return this.calculateTotalLoadOnNorthBeam();
     }
     async solvePart2(): Promise<any> {
-        //TODO do
-        return -1;
+        const cache = new Map();
+
+        const totalCycles = 1000000000
+        for (let cycle = 0; cycle < totalCycles; cycle++) {
+            // if (cycle % 1000 === 0) {
+            //     console.log(`Cycle: ${cycle}`);
+            // }
+            this.moveAllRocksToNorthEdge();
+            this.moveAllRocksToWestEdge();
+            this.moveAllRocksToSouthEdge();
+            this.moveAllRocksToEastEdge();
+        }
+
+        return this.calculateTotalLoadOnNorthBeam();
     }
 
     async run(): Promise<RunResults> {
