@@ -1,10 +1,11 @@
+export type PuzzleSolutionResult<T> = {
+    result: T;
+    executionTime: number;
+};
+
 export type RunResults = {
-    part1Result: any;
-    part1StartTime: number;
-    part1EndTime: number;
-    part2Result: any;
-    part2StartTime: number;
-    part2EndTime: number;
+    part1Result: PuzzleSolutionResult<string | number>;
+    part2Result: PuzzleSolutionResult<string | number>;
 };
 
 export interface PuzzleSolver {
@@ -18,5 +19,4 @@ export interface PuzzleSolver {
     solvePart2(): Promise<any>;
 
     run(): Promise<RunResults>;
-    display(results: RunResults): Promise<void>;
 }
