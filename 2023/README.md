@@ -1,13 +1,7 @@
-### 2023 Solutions
+## 2023 Solutions
 
-<style>
-    table th, table td {
-        text-align: center;
-    }
-</style>
-
-| Day              | Part 1 | Part 2 |
-|------------------|--------|--------|
+| Day                | Part 1   |   Part 2 |
+|:------------------:|:--------:|:--------:|
 | [01](day_01/solution.ts) | ⭐ | ⭐ |
 | [02](day_02/solution.ts) | ⭐ | ⭐ |
 | [03](day_03/solution.ts) | ⭐ | ⭐ |
