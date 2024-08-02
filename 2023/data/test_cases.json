@@ -1,0 +1,16 @@
+[
+    {
+        "day": 14,
+        "description": "Validate against data provided as example in puzzle",
+        "expectedPart1": 136,
+        "expectedPart2": 64,
+        "filename": "test_1"
+    },
+    {
+        "day": 14,
+        "description": "Validate against real puzzle data",
+        "expectedPart1": 105982,
+        "expectedPart2": 85175,
+        "filename": "day_14"
+    }
+]
