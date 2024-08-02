@@ -5,7 +5,7 @@ import { timeFunction } from '../helpers/timeFunction.js';
 
 type Grid = string[][];
 
-class Day_14_Solver implements PuzzleSolver {
+export class Day_14_Solver implements PuzzleSolver {
     inputData: string[];
     parsedData: Grid;
 
@@ -151,8 +151,8 @@ class Day_14_Solver implements PuzzleSolver {
         return totalDamage;
     }
 
-    async loadInputData(): Promise<void> {
-        this.inputData = await loadPuzzleFromFile(14, 'day_14');
+    async loadInputData(filename: string = 'day_14'): Promise<void> {
+        this.inputData = await loadPuzzleFromFile(14, filename);
     }
 
     async parseInputData(): Promise<void> {
@@ -177,10 +177,10 @@ class Day_14_Solver implements PuzzleSolver {
             for (let direction = 0; direction < 4; direction++) {
                 const platformState = this.parsedData.map((row) => row.join('')).join('\n');
 
-                const cacheKey = `${platformState}-${direction}`;
+                const cacheKey = platformState;
 
                 if (cache.has(cacheKey)) {
-                    const [firstCycle, firstDirection] = cache.get(cacheKey);
+                    const [firstCycle] = cache.get(cacheKey);
                     const cycleDifference = cycle - firstCycle;
 
                     const whenRepeats = (totalCycles - cycle) / cycleDifference;
@@ -188,7 +188,7 @@ class Day_14_Solver implements PuzzleSolver {
                         return this.calculateTotalLoadOnNorthBeam();
                     }
                 } else {
-                    cache.set(cacheKey, [cycle, direction]);
+                    cache.set(cacheKey, [cycle]);
                 }
 
                 switch (direction) {
@@ -211,8 +211,8 @@ class Day_14_Solver implements PuzzleSolver {
         throw new Error('Could not find a repeating pattern');
     }
 
-    async run(): Promise<RunResults> {
-        await this.loadInputData();
+    async run(filename?: string): Promise<RunResults> {
+        await this.loadInputData(filename);
         await this.parseInputData();
 
         const part1Result = await timeFunction(() => this.solvePart1());
@@ -227,6 +227,6 @@ class Day_14_Solver implements PuzzleSolver {
     }
 }
 
-const day14Solver = new Day_14_Solver();
-const results = await day14Solver.run();
-display(results);
+// const day14Solver = new Day_14_Solver();
+// const results = await day14Solver.run();
+// display(results);

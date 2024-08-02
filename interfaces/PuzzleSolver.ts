@@ -18,5 +18,5 @@ export interface PuzzleSolver {
     solvePart1(): Promise<any>;
     solvePart2(): Promise<any>;
 
-    run(): Promise<RunResults>;
+    run(filename?: string): Promise<RunResults>;
 }
