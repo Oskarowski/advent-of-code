@@ -12,5 +12,19 @@
         "expectedPart1": 105982,
         "expectedPart2": 85175,
         "filename": "day_14"
+    },
+    {
+        "day": 15,
+        "description": "Validate against data provided as example in puzzle",
+        "expectedPart1": 1320,
+        "expectedPart2": 145,
+        "filename": "example_1"
+    },
+    {
+        "day": 15,
+        "description": "Validate against real puzzle data",
+        "expectedPart1": 513214,
+        "expectedPart2": -123456789,
+        "filename": "day_15"
     }
 ]

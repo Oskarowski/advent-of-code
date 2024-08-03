@@ -1,10 +1,11 @@
 import { readFile } from 'fs/promises';
+import path from 'path';
+import chalk from 'chalk';
+import { logError, logInfo } from './helpers/ConsoleMessages.js';
 import { PuzzleSolver } from '../interfaces/PuzzleSolver';
 import { PuzzleTester, TestCase, TestResult } from '../interfaces/PuzzleTester';
 import { Day_14_Solver } from './day_14/Day_14_Solver.js';
-import { logError, logInfo } from './helpers/ConsoleMessages.js';
-import path from 'path';
-import chalk from 'chalk';
+import { Day_15_Solver } from './day_15/Day_15_Solver.js';
 
 function isPuzzleSolver(obj: any): obj is PuzzleSolver {
     return (
@@ -24,6 +25,7 @@ export class GenericPuzzleTester implements PuzzleTester {
         // TODO go through days dir and check for classes implementing PuzzleSolver interface and instance them here
         this.solvers = {
             14: new Day_14_Solver(),
+            15: new Day_15_Solver(),
         };
     }
 
@@ -99,7 +101,6 @@ export class GenericPuzzleTester implements PuzzleTester {
                 continue;
             }
 
-            logInfo(`Testing Day ${day}...`);
 
             for (const testCase of testCases.filter((tc) => tc.day === day)) {
                 if (!(testCase.day === day)) {
