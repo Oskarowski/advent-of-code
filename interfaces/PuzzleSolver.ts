@@ -12,7 +12,7 @@ export interface PuzzleSolver {
     inputData: string | string[];
     parsedData: any;
 
-    loadInputData(): Promise<void>;
+    loadInputData(filename?: string): Promise<void>;
     parseInputData(): Promise<void>;
 
     solvePart1(): Promise<any>;
