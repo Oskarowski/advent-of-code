@@ -72,7 +72,49 @@ export class Day_15_Solver implements PuzzleSolver {
     }
 
     async solvePart2(): Promise<number> {
-        return -1;
+        const boxesArrangement: Map<number, Map<string, string>> = new Map();
+
+        // populate each Box with slots for lenses
+        for (let i = 0; i <= 255; i++) {
+            boxesArrangement.set(i, new Map());
+        }
+
+        for (const sequence of this.parsedData) {
+            if (sequence.includes('-')) {
+                const label = sequence.slice(0, -1);
+                const boxLabel = this.hashHash(label);
+
+                boxesArrangement.get(boxLabel).delete(label);
+            } else {
+                const [label, focalLength] = sequence.split('=');
+                const boxLabel = this.hashHash(label);
+
+                boxesArrangement.get(boxLabel).set(label, focalLength);
+            }
+        }
+
+        let totalFocusingPower = 0;
+
+        for (const [boxLabel, boxContent] of boxesArrangement.entries()) {
+            if (boxContent.size === 0) {
+                continue;
+            }
+
+            let boxFocusingPower = 0;
+            let lensIndex = 1;
+
+            for (const [lensLabel, lensPower] of boxContent.entries()) {
+                const boxPower = boxLabel + 1;
+                const lensFocusingPower = boxPower * lensIndex * Number(lensPower);
+
+                boxFocusingPower += lensFocusingPower;
+                lensIndex++;
+            }
+
+            totalFocusingPower += boxFocusingPower;
+        }
+
+        return totalFocusingPower;
     }
 
     async run(filename?: string): Promise<RunResults> {

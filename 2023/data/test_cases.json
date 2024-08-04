@@ -24,7 +24,7 @@
         "day": 15,
         "description": "Validate against real puzzle data",
         "expectedPart1": 513214,
-        "expectedPart2": -123456789,
+        "expectedPart2": 258826,
         "filename": "day_15"
     }
 ]
