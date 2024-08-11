@@ -151,8 +151,53 @@ export class Day_16_Solver implements PuzzleSolver {
         return this.visitedTiles.size;
     }
 
+    resetCache() {
+        this.visitedTiles = new Map();
+        this.pathTiles = new Map();
+    }
+
     async solvePart2(): Promise<any> {
-        return -1;
+        const traverseResults: Map<string, number> = new Map();
+
+        // traverse from up edge down
+        for (let col = 0; col < this.maxCol; col++) {
+            this.resetCache();
+            this.traverseVertical(0, col, 'down');
+            const traverseResultKey = `${0}-${col}-down`;
+            traverseResults.set(traverseResultKey, this.visitedTiles.size);
+        }
+
+        // traverse from bottom edge to up
+        for (let col = 0; col < this.maxCol; col++) {
+            this.resetCache();
+            this.traverseVertical(this.maxRow - 1, col, 'up');
+            const traverseResultKey = `${this.maxRow - 1}-${col}-up`;
+            traverseResults.set(traverseResultKey, this.visitedTiles.size);
+        }
+
+        // traverse from left edge to right
+        for (let row = 0; row < this.maxRow; row++) {
+            this.resetCache();
+            this.traverseVertical(row, 0, 'right');
+            const traverseResultKey = `${row}-${0}-right`;
+            traverseResults.set(traverseResultKey, this.visitedTiles.size);
+        }
+
+        // traverse from left edge to right
+        for (let row = this.maxRow - 1; row >= 0; row--) {
+            this.resetCache();
+            this.traverseVertical(row, this.maxCol - 1, 'left');
+            const traverseResultKey = `${row}-${this.maxCol - 1}-left`;
+            traverseResults.set(traverseResultKey, this.visitedTiles.size);
+        }
+
+        let maxTraverseValue = -1;
+        for (const value of traverseResults.values()) {
+            if (value > maxTraverseValue) {
+                maxTraverseValue = value;
+            }
+        }
+        return maxTraverseValue;
     }
 
     async run(filename?: string): Promise<RunResults> {
