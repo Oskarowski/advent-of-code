@@ -12,7 +12,6 @@
             "args": ["${relativeFile}"],
             "runtimeArgs": ["--loader", "ts-node/esm"],
             "cwd": "${workspaceRoot}",
-            "protocol": "inspector",
             "internalConsoleOptions": "openOnSessionStart",
             "skipFiles": ["<node_internals>/**"]
         }
