@@ -60,3 +60,50 @@ for (let y = 0; y < lettersGrid.length; y++) {
 }
 
 console.log(`Words XMAS found: ${wordsInGrid.length}`);
+
+let xmasCount = 0;
+
+const checkXMASPattern = (x: number, y: number) => {
+    const diagonals = [
+        { dx1: -1, dy1: -1, dx2: 1, dy2: 1 }, // Top-left to bottom-right
+        { dx1: 1, dy1: -1, dx2: -1, dy2: 1 }, // Top-right to bottom-left
+    ];
+
+    let validMASCount = 0;
+
+    for (const { dx1, dy1, dx2, dy2 } of diagonals) {
+        const top = { x: x + dx1, y: y + dy1 };
+        const bottom = { x: x + dx2, y: y + dy2 };
+
+        if (!inBounds(top.y, top.x) || !inBounds(bottom.y, bottom.x)) {
+            return false;
+        }
+
+        const topLetter = lettersGrid[top.y][top.x];
+        const bottomLetter = lettersGrid[bottom.y][bottom.x];
+
+        const diagonal = [topLetter, lettersGrid[y][x], bottomLetter].join('');
+        if (diagonal === 'MAS' || diagonal === 'SAM') {
+            validMASCount++;
+        }
+    }
+
+    if (validMASCount === 2) {
+        xmasCount++;
+        return true;
+    }
+
+    return false;
+};
+
+for (let y = 0; y < lettersGrid.length; y++) {
+    for (let x = 0; x < lettersGrid[y].length; x++) {
+        const letter = lettersGrid[y][x];
+
+        if (letter === 'A') {
+            checkXMASPattern(x, y);
+        }
+    }
+}
+
+console.log(`X-MAS patterns found: ${xmasCount}`);
