@@ -21,7 +21,9 @@ for (const ruleLine of firstSection.split('\n')) {
     rulesBook.get(number).sort((a, b) => a - b);
 }
 
-const correctUpdates = [];
+const correctUpdates = [] as number[][];
+const incorrectUpdates = [] as number[][];
+
 for (const updates of secondSection.split('\n')) {
     const updatePages = updates.split(',').map(Number);
 
@@ -30,30 +32,76 @@ for (const updates of secondSection.split('\n')) {
         const currentPage = updatePages[i];
         const rulesForCurrentPage = rulesBook.get(currentPage);
 
-        if (!rulesForCurrentPage) {
-            continue;
-        }
+        if (!rulesForCurrentPage) continue;
 
         for (const rule of rulesForCurrentPage) {
             const marginalNumberIndex = updatePages.indexOf(rule);
 
-            if (marginalNumberIndex === -1) {
-                continue;
-            }
+            if (marginalNumberIndex === -1) continue;
 
             if (marginalNumberIndex < i) {
                 correctOrder = false;
                 break;
             }
         }
+
+        if (!correctOrder) break;
     }
 
     if (correctOrder) {
         correctUpdates.push(updatePages);
+    } else {
+        incorrectUpdates.push(updatePages);
     }
 }
 
-const middlePageNumbers = correctUpdates.map((updatePages) => updatePages[Math.floor(updatePages.length / 2)]);
-const sumMiddlePageNumbers = middlePageNumbers.reduce((acc, number) => acc + number, 0);
+const middlePageNumbersForCorrectUpdates = correctUpdates.map(
+    (updatePages) => updatePages[Math.floor(updatePages.length / 2)]
+);
+const sumMiddlePageNumbersFromCorrectUpdates = middlePageNumbersForCorrectUpdates.reduce(
+    (acc, number) => acc + number,
+    0
+);
 
-console.log(`Sum of middle page numbers: ${sumMiddlePageNumbers}`);
+console.log(`Sum of middle page numbers for correct updates: ${sumMiddlePageNumbersFromCorrectUpdates}`);
+
+const correctedUpdates = [] as number[][];
+for (const incorrectUpdate of incorrectUpdates) {
+    const correctedUpdate = [...incorrectUpdate];
+    let swapsMade: boolean;
+
+    do {
+        swapsMade = false;
+
+        for (let i = 0; i < correctedUpdate.length; i++) {
+            const currentPage = correctedUpdate[i];
+            const rulesForCurrentPage = rulesBook.get(currentPage);
+
+            if (!rulesForCurrentPage) continue;
+
+            for (const rule of rulesForCurrentPage) {
+                const marginalNumberIndex = correctedUpdate.indexOf(rule);
+
+                if (marginalNumberIndex !== -1 && marginalNumberIndex < i) {
+                    [correctedUpdate[i], correctedUpdate[marginalNumberIndex]] = [
+                        correctedUpdate[marginalNumberIndex],
+                        correctedUpdate[i],
+                    ];
+                    swapsMade = true;
+                }
+            }
+        }
+    } while (swapsMade);
+
+    correctedUpdates.push(correctedUpdate);
+}
+
+const middlePageNumbersForCorrectedUpdates = correctedUpdates.map(
+    (updatePages) => updatePages[Math.floor(updatePages.length / 2)]
+);
+const sumMiddlePageNumbersForCorrectedUpdates = middlePageNumbersForCorrectedUpdates.reduce(
+    (acc, number) => acc + number,
+    0
+);
+
+console.log(`Sum of middle page numbers for corrected updates: ${sumMiddlePageNumbersForCorrectedUpdates}`);
