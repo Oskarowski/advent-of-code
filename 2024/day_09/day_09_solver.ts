@@ -37,7 +37,7 @@ const decompressDisk = (compressed: number[]): string[] => {
 
 const diskUncompressed = decompressDisk(diskCompressed);
 
-const defragmentDisk = (disk: string[]): string[] => {
+const blockBasedDefragmentDisk = (disk: string[]): string[] => {
     const defragmentedDisk = [...disk];
     let right = defragmentedDisk.length - 1;
 
@@ -58,11 +58,7 @@ const defragmentDisk = (disk: string[]): string[] => {
     return defragmentedDisk;
 };
 
-const defragmentedDisk = defragmentDisk(diskUncompressed);
-
-const outputPath = __dirname + '/../data/day_09/defragmented_disk.txt';
-fs.writeFileSync(outputPath, defragmentedDisk.join(''));
-console.log(`Defragmented disk saved to ${outputPath}`);
+const blockBasedDefragmentedDisk = blockBasedDefragmentDisk(diskUncompressed);
 
 const calculateDiskChecksum = (disk: string[]): number => {
     return disk.reduce((checksum, block, index) => {
@@ -71,5 +67,86 @@ const calculateDiskChecksum = (disk: string[]): number => {
     }, 0);
 };
 
-const diskChecksum = calculateDiskChecksum(defragmentedDisk);
-console.log(`Filesystem checksum: ${diskChecksum}`);
+const blockBasedDiskCheckSum = calculateDiskChecksum(blockBasedDefragmentedDisk);
+console.log(`Filesystem Block Fragmented checksum: ${blockBasedDiskCheckSum}`);
+
+// part 2
+const findEmptyMemRegions = (disk: string[], rightPointer: number): [number, number][] => {
+    let startIndex = -1;
+    let offset = 0;
+
+    const emptyRegionsInBounds: [number, number][] = [];
+
+    for (let i = 0; i <= rightPointer; i++) {
+        if (disk[i] === '.') {
+            if (startIndex === -1) {
+                startIndex = i;
+            }
+            offset++;
+        } else {
+            if (startIndex !== -1) {
+                emptyRegionsInBounds.push([startIndex, offset]);
+                startIndex = -1;
+                offset = 0;
+            }
+        }
+    }
+
+    if (startIndex !== -1) {
+        emptyRegionsInBounds.push([startIndex, offset]);
+    }
+
+    return emptyRegionsInBounds;
+};
+
+const getFileOffset = (disk: string[], fileID: string, rightPointer: number): number => {
+    let offset = 0;
+
+    for (let i = rightPointer; i >= 0; i--) {
+        if (disk[i] === fileID) {
+            offset++;
+        } else {
+            break;
+        }
+    }
+
+    return offset;
+};
+
+const fileBasedDefragmentDisk = (disk: string[]): string[] => {
+    const defragmentedDisk = [...disk];
+
+    let right = defragmentedDisk.length - 1;
+    let emptyRegions: [number, number][];
+    let fileOffset: number;
+
+    while (right >= 0) {
+        const fileID = defragmentedDisk[right];
+        if (fileID === '.') {
+            right--;
+            continue;
+        }
+
+        fileOffset = getFileOffset(defragmentedDisk, fileID, right);
+        emptyRegions = findEmptyMemRegions(defragmentedDisk, right - fileOffset);
+
+        for (const [startIndex, memOffset] of emptyRegions) {
+            if (memOffset >= fileOffset) {
+                for (let j = 0; j < fileOffset; j++) {
+                    defragmentedDisk[startIndex + j] = fileID;
+                    defragmentedDisk[right - j] = '.';
+                }
+                break;
+            }
+        }
+
+        right -= fileOffset;
+    }
+
+    return defragmentedDisk;
+};
+
+const fileBasedDefragmentedDisk = fileBasedDefragmentDisk(diskUncompressed);
+const fileBasedDiskChecksum = calculateDiskChecksum(fileBasedDefragmentedDisk);
+
+console.log(`Filesystem File Fragmented checksum: ${fileBasedDiskChecksum}`);
