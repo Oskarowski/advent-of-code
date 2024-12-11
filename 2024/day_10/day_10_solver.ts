@@ -14,82 +14,55 @@ const topographicGrid = fs
     .split('\n')
     .map((line) => line.split(''));
 
+const DIRECTIONS = [
+    [-1, 0],
+    [1, 0],
+    [0, -1],
+    [0, 1],
+];
+
 const isTrailhead = (point: string): boolean => point === '0';
 
-const getNeighbors = (grid: string[][], point: [number, number]): [number, number][] => {
-    const directions = [
-        [-1, 0],
-        [1, 0],
-        [0, -1],
-        [0, 1],
-    ];
-
-    const neighbors = [];
-
-    for (const [dx, dy] of directions) {
-        const [x, y] = point;
-        const [nx, ny] = [x + dx, y + dy];
-
-        if (nx >= 0 && nx < grid[0].length && ny >= 0 && ny < grid.length) {
-            if (grid[ny][nx] !== '.') {
-                if (Number(grid[ny][nx]) - Number(grid[y][x]) === 1) {
-                    neighbors.push([nx, ny]);
-                }
-            }
-        }
-    }
-
-    return neighbors;
+const getNeighbors = (grid: string[][], x: number, y: number): [number, number][] => {
+    return DIRECTIONS.map(([dx, dy]): [number, number] => [x + dx, y + dy]).filter(
+        ([nx, ny]) =>
+            nx >= 0 &&
+            nx < grid[0].length &&
+            ny >= 0 &&
+            ny < grid.length &&
+            grid[ny][nx] !== '.' &&
+            Number(grid[ny][nx]) - Number(grid[y][x]) === 1
+    );
 };
 
-const getTrailheadScore = (grid: string[][], trailhead: [number, number]): number => {
-    const visitedPoints = new Set<string>();
-    const visitedPicks = new Set<string>();
-    const queue = [trailhead];
-
-    while (queue.length > 0) {
-        const [x, y] = queue.shift()!;
-
-        const visitedKey = `${x},${y}`;
-        if (visitedPoints.has(visitedKey)) {
-            continue;
-        }
-        visitedPoints.add(visitedKey);
-
-        const neighbors = getNeighbors(grid, [x, y]);
-
-        for (const neighbor of neighbors) {
-            if (grid[neighbor[1]][neighbor[0]] === '9') {
-                const pickVisitedKey = `${neighbor[0]},${neighbor[1]}`;
-                visitedPicks.add(pickVisitedKey);
-            } else {
-                queue.push(neighbor);
-            }
-        }
-    }
-
-    return visitedPicks.size;
-};
-
-const getTrailheadRating = (grid: string[][], trailhead: [number, number]): number => {
+const calculateTrailheadMetrics = (
+    grid: string[][],
+    trailhead: [number, number]
+): { score: number; rating: number } => {
+    const foundNines = new Set<string>();
     let score = 0;
-    const queue = [trailhead];
+    let rating = 0;
+    const queue: [number, number][] = [trailhead];
 
     while (queue.length > 0) {
-        const [x, y] = queue.shift()!;
+        const [x, y] = queue.pop();
+        const key = `${x},${y}`;
 
-        const neighbors = getNeighbors(grid, [x, y]);
-
-        for (const neighbor of neighbors) {
-            if (grid[neighbor[1]][neighbor[0]] === '9') {
-                score++;
+        for (const [nx, ny] of getNeighbors(grid, x, y)) {
+            const neighborKey = `${nx},${ny}`;
+            if (grid[ny][nx] === '9') {
+                if (!foundNines.has(neighborKey)) {
+                    foundNines.add(neighborKey);
+                    score++;
+                }
+                rating++;
             } else {
-                queue.push(neighbor);
+                queue.push([nx, ny]);
             }
         }
     }
 
-    return score;
+    return { score, rating };
 };
 
 type TrailheadInfo = {
@@ -101,16 +74,13 @@ type TrailheadInfo = {
 const processTrailheads = (grid: string[][]): TrailheadInfo[] => {
     const trailheadsInfo: TrailheadInfo[] = [];
 
-    for (let y = 0; y < topographicGrid.length; y++) {
-        for (let x = 0; x < topographicGrid[0].length; x++) {
-            const point = topographicGrid[y][x];
-
-            if (!isTrailhead(point)) {
+    for (let y = 0; y < grid.length; y++) {
+        for (let x = 0; x < grid[0].length; x++) {
+            if (!isTrailhead(grid[y][x])) {
                 continue;
             }
 
-            const score = getTrailheadScore(topographicGrid, [x, y]);
-            const rating = getTrailheadRating(topographicGrid, [x, y]);
+            const { score, rating } = calculateTrailheadMetrics(grid, [x, y]);
 
             trailheadsInfo.push({
                 trailhead: [x, y],
@@ -123,11 +93,11 @@ const processTrailheads = (grid: string[][]): TrailheadInfo[] => {
     return trailheadsInfo;
 };
 
-const trailheadsInfo = processTrailheads(topographicGrid);
-
 const sumTrailheadProperty = (trailheadsInfo: TrailheadInfo[], property: 'score' | 'rating'): number => {
     return trailheadsInfo.reduce((acc, info) => acc + info[property], 0);
 };
+
+const trailheadsInfo = processTrailheads(topographicGrid);
 
 console.log(`Sum of scores of all trailheads: ${sumTrailheadProperty(trailheadsInfo, 'score')}`);
 console.log(`Sum of ratings of all trailheads: ${sumTrailheadProperty(trailheadsInfo, 'rating')}`);
