@@ -42,10 +42,10 @@ const getNeighbors = (grid: string[][], point: [number, number]): [number, numbe
     return neighbors;
 };
 
-const BFSTrail = (grid: string[][], start: [number, number]): number => {
+const getTrailheadScore = (grid: string[][], trailhead: [number, number]): number => {
     const visitedPoints = new Set<string>();
     const visitedPicks = new Set<string>();
-    const queue = [start];
+    const queue = [trailhead];
 
     while (queue.length > 0) {
         const [x, y] = queue.shift()!;
@@ -71,9 +71,31 @@ const BFSTrail = (grid: string[][], start: [number, number]): number => {
     return visitedPicks.size;
 };
 
+const getTrailheadRating = (grid: string[][], trailhead: [number, number]): number => {
+    let score = 0;
+    const queue = [trailhead];
+
+    while (queue.length > 0) {
+        const [x, y] = queue.shift()!;
+
+        const neighbors = getNeighbors(grid, [x, y]);
+
+        for (const neighbor of neighbors) {
+            if (grid[neighbor[1]][neighbor[0]] === '9') {
+                score++;
+            } else {
+                queue.push(neighbor);
+            }
+        }
+    }
+
+    return score;
+};
+
 type TrailheadInfo = {
     trailhead: [number, number];
     score: number;
+    rating: number;
 };
 
 const processTrailheads = (grid: string[][]): TrailheadInfo[] => {
@@ -87,11 +109,13 @@ const processTrailheads = (grid: string[][]): TrailheadInfo[] => {
                 continue;
             }
 
-            const score = BFSTrail(topographicGrid, [x, y]);
+            const score = getTrailheadScore(topographicGrid, [x, y]);
+            const rating = getTrailheadRating(topographicGrid, [x, y]);
 
             trailheadsInfo.push({
                 trailhead: [x, y],
                 score,
+                rating: rating,
             });
         }
     }
@@ -101,8 +125,9 @@ const processTrailheads = (grid: string[][]): TrailheadInfo[] => {
 
 const trailheadsInfo = processTrailheads(topographicGrid);
 
-const sumScoreOfTrailheads = (trailheadsInfo: TrailheadInfo[]): number => {
-    return trailheadsInfo.reduce((acc, trailheadInfo) => acc + trailheadInfo.score, 0);
+const sumTrailheadProperty = (trailheadsInfo: TrailheadInfo[], property: 'score' | 'rating'): number => {
+    return trailheadsInfo.reduce((acc, info) => acc + info[property], 0);
 };
 
-console.log(`Sum of scores of all trailheads: ${sumScoreOfTrailheads(trailheadsInfo)}`);
+console.log(`Sum of scores of all trailheads: ${sumTrailheadProperty(trailheadsInfo, 'score')}`);
+console.log(`Sum of ratings of all trailheads: ${sumTrailheadProperty(trailheadsInfo, 'rating')}`);
