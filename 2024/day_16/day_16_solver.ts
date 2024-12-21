@@ -143,23 +143,12 @@ function dijkstra(grid: string[][]): { lowestScoreCost: number; path: Point[] } 
 const pathString = (path: Point[], maze: string[][]) => {
     const visualGrid = maze.map((row) => row.map((value) => value.toString()));
 
-    for (let i = 0; i < path.length - 1; i++) {
-        const current = path[i];
-        const next = path[i + 1];
-
-        if (next.x > current.x) {
-            visualGrid[current.x][current.y] = 'v';
-        } else if (next.x < current.x) {
-            visualGrid[current.x][current.y] = '^';
-        } else if (next.y > current.y) {
-            visualGrid[current.x][current.y] = '>';
-        } else if (next.y < current.y) {
-            visualGrid[current.x][current.y] = '<';
-        }
+    for (const point of path) {
+        visualGrid[point.y][point.x] = '/';
     }
 
-    const lastPosition = path[path.length - 1];
-    const startPosition = path[0];
+    const lastPosition = path[0];
+    const startPosition = path[path.length - 1];
     visualGrid[lastPosition.x][lastPosition.y] = 'E';
     visualGrid[startPosition.x][startPosition.y] = 'S';
 
@@ -170,4 +159,4 @@ const pathString = (path: Point[], maze: string[][]) => {
 const { lowestScoreCost, path } = dijkstra(maze);
 console.log(`Lowest score cost: ${lowestScoreCost}`);
 
-// pathString(path, maze);
+pathString(path, maze);
