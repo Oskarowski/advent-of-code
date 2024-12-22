@@ -17,43 +17,30 @@ const fallingBytes: [number, number][] = fs
         return [x, y];
     });
 
-const puzzleConfig = {
+const puzzleConfig = Object.freeze({
     memorySpaceSize: 7,
     maxBytesToFall: 12,
-};
-Object.freeze(puzzleConfig);
+    start: [0, 0],
+    end: [6, 6],
+});
 
-const initMemorySpace = (size: number): string[][] => {
-    const memorySpace: string[][] = [];
-    for (let i = 0; i < size; i++) {
-        memorySpace.push(new Array(size).fill('.'));
-    }
-    return memorySpace;
-};
-
-const memorySpace = initMemorySpace(puzzleConfig.memorySpaceSize);
+const initMemorySpace = (size: number): string[][] => Array.from({ length: size }, () => Array(size).fill('.'));
 
 const fillMemorySpace = (memorySpace: string[][], fallingBytes: [number, number][]): string[][] => {
-    const amountOfBytesToFall = [0, puzzleConfig.maxBytesToFall];
+    let bytesFallen = 0;
 
     for (const [x, y] of fallingBytes) {
         memorySpace[y][x] = '#';
-        amountOfBytesToFall[0]++;
-
-        if (amountOfBytesToFall[0] === amountOfBytesToFall[1]) {
-            break;
-        }
+        bytesFallen++;
+        if (bytesFallen === puzzleConfig.maxBytesToFall) break;
     }
+
     return memorySpace;
 };
 
-const printMemorySpace = (memorySpace: string[][]): void => {
-    for (const row of memorySpace) {
-        console.log(row.join(''));
-    }
-};
+const memorySpaceFilled = fillMemorySpace(initMemorySpace(puzzleConfig.memorySpaceSize), fallingBytes);
 
-const memorySpaceFilled = fillMemorySpace(memorySpace, fallingBytes);
+const printMemorySpace = (memorySpace: string[][]): void => memorySpace.forEach((row) => console.log(row.join('')));
 
 class PriorityQueue {
     private values: { element: any; priority: number }[] = [];
@@ -74,8 +61,6 @@ function getNeighbors(
     point: [number, number],
     direction: number
 ): { x: number; y: number; cost: number; direction: number }[] {
-    const neighbors: { x: number; y: number; cost: number; direction: number }[] = [];
-
     const MOVES = [
         { x: 1, y: 0 },
         { x: 0, y: 1 },
@@ -83,16 +68,9 @@ function getNeighbors(
         { x: 0, y: -1 },
     ];
 
-    MOVES.forEach((move, index) => {
-        neighbors.push({
-            x: point[0] + move.x,
-            y: point[1] + move.y,
-            cost: 1,
-            direction: index,
-        });
+    return MOVES.map((move, index) => {
+        return { x: point[0] + move.x, y: point[1] + move.y, cost: 1, direction: index };
     });
-
-    return neighbors;
 }
 
 const isValidMove = (gridSpace: string[][], x: number, y: number): boolean => {
@@ -100,8 +78,7 @@ const isValidMove = (gridSpace: string[][], x: number, y: number): boolean => {
 };
 
 function dijkstra(gridSpace: string[][]): { pathScore: number; path: [number, number][] } {
-    const start = [0, 0];
-    const end = [70, 70];
+    const { start, end } = puzzleConfig;
 
     const pq = new PriorityQueue();
     pq.enqueue({ point: start, direction: 0, cost: 0, path: [start] }, 0);
@@ -151,3 +128,30 @@ const mapPathOntoMemorySpace = (memorySpace: string[][], path: [number, number][
     }
     return memorySpaceCopy;
 };
+
+const processFallingBytes = (fallingBytes: [number, number][], memorySpace: string[][]): [number, number] => {
+    let { pathScore, path } = dijkstra(memorySpace);
+
+    for (const [x, y] of fallingBytes) {
+        memorySpace[y][x] = '#';
+
+        if (path.some(([px, py]) => px === x && py === y)) {
+            const result = dijkstra(memorySpace);
+            pathScore = result.pathScore;
+            path = result.path;
+
+            if (pathScore === -1) {
+                return [x, y];
+            }
+        }
+    }
+
+    return [-69, -69];
+};
+
+console.log(
+    `Coordinates of byte which will block the path: ${processFallingBytes(
+        fallingBytes,
+        initMemorySpace(puzzleConfig.memorySpaceSize)
+    )}`
+);
