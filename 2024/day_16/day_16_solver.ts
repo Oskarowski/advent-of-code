@@ -77,12 +77,11 @@ function getNeighbors(point: Point, direction: number): { point: Point; directio
     return neighbors;
 }
 
-function dijkstra(grid: string[][]): any {
+function pathfinder(grid: string[][]): any {
     const start: Point = findPosition(grid, 'S');
     const end: Point = findPosition(grid, 'E');
 
     const pq = new PriorityQueue();
-    const visited: Set<string> = new Set();
     const lowestCost: Map<string, number> = new Map();
     const backtrack: Map<string, { point: Point; direction: number }[]> = new Map();
 
@@ -126,11 +125,13 @@ function dijkstra(grid: string[][]): any {
         }
     }
 
-    const endKey = gKey(end.x, end.y, 3);
-    if (!backtrack.has(endKey)) return null;
-
-    const paths: Point[][] = [];
-    const reconstruct = (key: string, path: Point[]) => {
+    const reconstruct = (
+        key: string,
+        path: Point[],
+        paths: { path: Point[]; direction: number; cost: number }[],
+        endDirection: number,
+        endCost: number
+    ) => {
         const [x, y, dir] = key.split(',').map(Number);
         path.unshift({ x, y });
 
@@ -140,46 +141,76 @@ function dijkstra(grid: string[][]): any {
             key === gKey(start.x, start.y, 2) ||
             key === gKey(start.x, start.y, 3)
         ) {
-            paths.push([...path]);
+            paths.push({
+                path: [...path],
+                direction: endDirection,
+                cost: endCost,
+            });
             return;
         }
 
         const parents = backtrack.get(key) ?? [];
         for (const parent of parents) {
-            reconstruct(gKey(parent.point.x, parent.point.y, parent.direction), path);
+            reconstruct(gKey(parent.point.x, parent.point.y, parent.direction), path, paths, endDirection, endCost);
         }
+
         path.shift();
     };
 
-    reconstruct(endKey, []);
+    const reconstructedPathsForEnds: { path: Point[]; direction: number; cost: number }[] = [];
 
-    return { scoreCost: lowestCost.get(endKey)!, paths };
+    for (let endDirection = 0; endDirection < 4; endDirection++) {
+        const possibleEndKey = gKey(end.x, end.y, endDirection);
+        if (!backtrack.has(possibleEndKey)) continue;
+
+        const paths: { path: Point[]; direction: number; cost: number }[] = [];
+        const endCost = lowestCost.get(possibleEndKey) ?? Infinity;
+        reconstruct(possibleEndKey, [], paths, endDirection, endCost);
+
+        reconstructedPathsForEnds.push(...paths);
+    }
+
+    return reconstructedPathsForEnds;
 }
 
-const pathString = (path: Point[], maze: string[][]) => {
-    const visualGrid = maze.map((row) => row.map((value) => value.toString()));
+const result = pathfinder(maze);
 
-    for (const point of path) {
-        visualGrid[point.y][point.x] = '/';
+const combineOptimalPaths = (
+    maze: string[][],
+    paths: { path: Point[]; direction: number }[],
+    cost: number
+): { totalTiles: number; cost: number; pathStringified: string } => {
+    const mazeCopy = maze.map((row) => row.map((value) => value.toString()));
+
+    let totalTiles = 0;
+    for (const { path } of paths) {
+        for (const point of path) {
+            if (mazeCopy[point.y][point.x] !== 'O') {
+                mazeCopy[point.y][point.x] = 'O';
+                totalTiles++;
+            }
+        }
     }
 
-    const lastPosition = path[0];
-    const startPosition = path[path.length - 1];
-    visualGrid[lastPosition.x][lastPosition.y] = 'E';
-    visualGrid[startPosition.x][startPosition.y] = 'S';
-
-    const stringGrid = visualGrid.map((row) => row.join('')).join('\n');
-    console.log(stringGrid);
+    return {
+        totalTiles,
+        cost,
+        pathStringified: mazeCopy.map((row) => row.join('')).join('\n'),
+    };
 };
 
-const result = dijkstra(maze);
-
 if (result) {
-    console.log(`Shortest path cost: ${result.scoreCost}`);
-    console.log(`Number of paths: ${result.paths.length}`);
+    let lowestCost = result.reduce((acc: number, { cost }) => {
+        return Math.min(acc, cost);
+    }, Infinity);
 
-    for (let i = 0; i < result.paths.length; i++) {
-        console.log(`Path ${i + 1}`);
-        pathString(result.paths[i], maze);
-    }
+    console.log(`Lowest cost across all paths: ${lowestCost}`);
+
+    const lowestCostPaths = result.filter(({ cost }) => cost === lowestCost);
+
+    const { totalTiles, cost, pathStringified } = combineOptimalPaths(maze, lowestCostPaths, lowestCost);
+
+    console.log(`Total tiles: ${totalTiles}`);
+    console.log(`Cost: ${cost}`);
+    console.log(pathStringified);
 }
