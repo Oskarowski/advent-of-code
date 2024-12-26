@@ -78,38 +78,36 @@ const getProperRacePath = (grid: string[][]): { path: [number, number][]; distan
 
 const { path, distanceGrid } = getProperRacePath(raceGrid);
 
-const computeNumberOfCheats = (grid: number[][], desiredTimeSaved: number): number => {
+const computeNumberOfCheats = (
+    distanceGrid: number[][],
+    path: [number, number][],
+    cheatingTime: number,
+    desiredTimeSaved: number
+): number => {
     let cheatPathCount = 0;
 
-    const getNeighbors = (x: number, y: number): [number, number][] => {
-        return [
-            [x, y - 2],
-            [x + 1, y - 1],
-            [x + 2, y],
-            [x + 1, y + 1],
-            [x, y + 2],
-            [x - 1, y + 1],
-            [x - 2, y],
-            [x - 1, y - 1],
-        ];
+    const calculateManhattanDistance = (x1: number, y1: number, x2: number, y2: number): number => {
+        return Math.abs(x1 - x2) + Math.abs(y1 - y2);
     };
 
-    const isValidField = (x: number, y: number): boolean => {
-        return x >= 0 && x < grid[0].length && y >= 0 && y < grid.length && grid[y][x] !== -1;
-    };
+    for (let i = 0; i < path.length; i++) {
+        const [x, y] = path[i];
+        const cd = distanceGrid[y][x];
 
-    for (let y = 0; y < grid.length; y++) {
-        for (let x = 0; x < grid[0].length; x++) {
-            if (grid[y][x] === -1) continue;
+        for (let j = 0; j < path.length; j++) {
+            const [nx, ny] = path[j];
 
-            for (const [nx, ny] of getNeighbors(x, y)) {
-                if (isValidField(nx, ny)) {
-                    const timeSaved = grid[ny][nx] - grid[y][x];
+            const manhattanDistance = calculateManhattanDistance(x, y, nx, ny);
 
-                    if (timeSaved >= desiredTimeSaved + 2) {
-                        cheatPathCount++;
-                    }
-                }
+            if (manhattanDistance > cheatingTime) {
+                continue;
+            }
+
+            const nd = distanceGrid[ny][nx];
+            const timeSaved = nd - cd;
+
+            if (timeSaved >= desiredTimeSaved + manhattanDistance) {
+                cheatPathCount++;
             }
         }
     }
@@ -117,23 +115,21 @@ const computeNumberOfCheats = (grid: number[][], desiredTimeSaved: number): numb
     return cheatPathCount;
 };
 
-const printPath = (grid: string[][], path: [number, number][]): void => {
-    const pathGrid = grid.map((row) => [...row]);
-    for (const [x, y] of path) {
-        if (pathGrid[y][x] !== 'S' && pathGrid[y][x] !== 'E') {
-            pathGrid[y][x] = '/';
-        }
-    }
-    console.log(pathGrid.map((row) => row.join('')).join('\n'));
-};
-
-// console.log(distanceGrid.map((row) => row.join(' ')).join('\n'));
-// printPath(raceGrid, path);
-
 const desiredTimeSaved = 100;
 console.log(
     `Number of cheats: ${computeNumberOfCheats(
         distanceGrid,
+        path,
+        2,
+        desiredTimeSaved
+    )} for desired time saved: ${desiredTimeSaved}`
+);
+
+console.log(
+    `Number of cheats: ${computeNumberOfCheats(
+        distanceGrid,
+        path,
+        20,
         desiredTimeSaved
     )} for desired time saved: ${desiredTimeSaved}`
 );
