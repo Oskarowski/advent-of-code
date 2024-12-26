@@ -16,38 +16,39 @@ const [availableTowelsInput, desiredDesignsInput] = fs
 const towelPatterns = availableTowelsInput.split(', ');
 const designPatterns = desiredDesignsInput.split('\n');
 
-const countPossibleDesigns = (towelPatterns: string[], designs: string[]): number => {
+const possibleDesigns = (towelPatterns: string[], desiredDesigns: string[]): [number, number] => {
     const patternsSet = new Set(towelPatterns);
-    const memo: Map<string, boolean> = new Map();
+    const memo: Map<string, number> = new Map();
 
-    function canFormDesign(design: string): boolean {
-        if (design === '') return true;
+    function countArrangements(design: string): number {
+        if (design === '') return 1;
 
         if (memo.has(design)) return memo.get(design)!;
+
+        let arrangementsWays = 0;
 
         for (let i = 1; i <= design.length; i++) {
             const prefix = design.substring(0, i);
             const suffix = design.substring(i);
 
-            if (patternsSet.has(prefix) && canFormDesign(suffix)) {
-                memo.set(design, true);
-                return true;
+            if (patternsSet.has(prefix)) {
+                arrangementsWays += countArrangements(suffix);
             }
         }
 
-        memo.set(design, false);
-        return false;
+        memo.set(design, arrangementsWays);
+        return arrangementsWays;
     }
 
-    let possibleCount = 0;
-    for (const design of designs) {
-        if (canFormDesign(design)) {
-            possibleCount++;
-        }
+    let totalArrangements = 0;
+    for (const design of desiredDesigns) {
+        totalArrangements += countArrangements(design);
     }
 
-    return possibleCount;
+    const possibleDesignsCount = desiredDesigns.filter((design) => countArrangements(design) > 0).length;
+
+    return [totalArrangements, possibleDesignsCount];
 };
 
-const result = countPossibleDesigns(towelPatterns, designPatterns);
-console.log('Number of possible designs:', result);
+const [totalArrangementsCount, possibleDesignsCount] = possibleDesigns(towelPatterns, designPatterns);
+console.log(`Possible designs: ${possibleDesignsCount} and can be arranged in ${totalArrangementsCount} ways`);
