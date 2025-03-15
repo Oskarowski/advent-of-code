@@ -8,7 +8,7 @@
 | [04](day_04/day_04_solver.ts) |   ⭐   |   ⭐   |
 | [05](day_05/day_05_solver.ts) |   ⭐   |   ⭐   |
 | [06](day_06/day_06_solver.ts) |   ⭐   |   ⭐   |
-| [07](day_07/day_07_solver.ts) |   ⭐   |   ⏳   |
+| [07](day_07/day_07_solver.ts) |   ⭐   |   ⭐   |
 | [08](day_08/day_08_solver.ts) |   ⭐   |   ⭐   |
 | [09](day_09/day_09_solver.ts) |   ⭐   |   ⭐   |
 | [10](day_10/day_10_solver.ts) |   ⭐   |   ⭐   |
