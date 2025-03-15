@@ -15,12 +15,21 @@ const garden = fs
     .split('\n')
     .map((row) => row.split(''));
 
+type Sides = {
+    top: number;
+    right: number;
+    bottom: number;
+    left: number;
+    total: number;
+};
+
 type Region = {
     plant: string;
     plots: { x: number; y: number }[];
     area: number;
     perimeter: number;
     fencingCost?: number;
+    sides?: Sides;
 };
 
 const DIRECTIONS = [
@@ -109,6 +118,107 @@ const computeFencingCosts = (regions: Region[]): number => {
 };
 
 const dividedGarden = divideGarden(garden);
-console.table(dividedGarden);
+
 const totalFencingCost = computeFencingCosts(dividedGarden);
 console.log(`Total fencing cost: ${totalFencingCost}`);
+
+const computeRegionSides = (region: Region) => {
+    const maxX = Math.max(...region.plots.map((plot) => plot.x));
+    const maxY = Math.max(...region.plots.map((plot) => plot.y));
+    const width = maxX + 1;
+    const height = maxY + 1;
+
+    const grid = Array.from({ length: height }, () => Array(width).fill(0));
+
+    for (const { x, y } of region.plots) {
+        grid[y][x] = 1;
+    }
+
+    let topSegments = 0;
+    let bottomSegments = 0;
+
+    for (let y = 0; y < height; y++) {
+        let inTopSegment = false;
+        let inBottomSegment = false;
+
+        for (let x = 0; x < width; x++) {
+            const topExposed = grid[y][x] === 1 && (y === 0 || grid[y - 1][x] === 0);
+
+            if (topExposed) {
+                if (!inTopSegment) {
+                    topSegments++;
+                    inTopSegment = true;
+                }
+            } else {
+                inTopSegment = false;
+            }
+
+            const bottomExposed = grid[y][x] === 1 && (y === height - 1 || grid[y + 1][x] === 0);
+
+            if (bottomExposed) {
+                if (!inBottomSegment) {
+                    bottomSegments++;
+                    inBottomSegment = true;
+                }
+            } else {
+                inBottomSegment = false;
+            }
+        }
+    }
+
+    let leftSegments = 0;
+    let rightSegments = 0;
+
+    for (let x = 0; x < width; x++) {
+        let inLeftSegment = false;
+        let inRightSegment = false;
+
+        for (let y = 0; y < height; y++) {
+            const leftExposed = grid[y][x] === 1 && (x === 0 || grid[y][x - 1] === 0);
+            
+            if (leftExposed) {
+                if (!inLeftSegment) {
+                    leftSegments++;
+                    inLeftSegment = true;
+                }
+            } else {
+                inLeftSegment = false;
+            }
+
+            const rightExposed = grid[y][x] === 1 && (x === width - 1 || grid[y][x + 1] === 0);
+
+            if (rightExposed) {
+                if (!inRightSegment) {
+                    rightSegments++;
+                    inRightSegment = true;
+                }
+            } else {
+                inRightSegment = false;
+            }
+        }
+    }
+
+    const totalSides = topSegments + bottomSegments + leftSegments + rightSegments;
+    region.sides = {
+        top: topSegments,
+        right: rightSegments,
+        bottom: bottomSegments,
+        left: leftSegments,
+        total: totalSides
+    };
+};
+
+for (const region of dividedGarden) {
+    computeRegionSides(region);
+}
+
+const computeFencingCostWithDiscount = (regions: Region[]): number => {
+    return regions.reduce((acc, region) => {
+        const cost = region.area * region.sides.total;
+        region.fencingCost = cost;
+        return acc + cost;
+    }, 0);
+};
+
+const totalFencingCostWithDiscount = computeFencingCostWithDiscount(dividedGarden);
+console.log(`Total fencing cost with discount: ${totalFencingCostWithDiscount}`);
