@@ -22,8 +22,8 @@
 | [18](day_18/day_18_solver.ts) |   ⭐   |   ⭐   |
 | [19](day_19/day_19_solver.ts) |   ⭐   |   ⭐   |
 | [20](day_20/day_20_solver.ts) |   ⭐   |   ⭐   |
-| [21](day_20/day_21_solver.ts) |   ❌   |   ⏳   |
-|            [22]()             |   ⏳   |   ⏳   |
+| [21](day_21/day_21_solver.ts) |   ❌   |   ⏳   |
+| [22](day_22/day_22.solver.ts) |   ⭐   |   ⏳   |
 |            [23]()             |   ⏳   |   ⏳   |
 |            [24]()             |   ⏳   |   ⏳   |
 |            [25]()             |   ⏳   |   ⏳   |
