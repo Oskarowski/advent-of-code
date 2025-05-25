@@ -16,29 +16,30 @@ function modulo(a: number, b: number): number {
 const mix = bitwiseXOR;
 const prune = modulo;
 
+const PRUNE_MODULUS = 16777216; // 2^24
+const MIX_MULTIPLY_1 = 64; // 2^6
+const MIX_DIVIDE = 32; // 2^5
+const MIX_MULTIPLY_2 = 2048; // 2^11
+
 function secretNumberGenerator(initialValue: number, iterations: number): number {
     let secretNumber = initialValue;
 
     for (let i = 0; i < iterations; i++) {
         let newNumber = secretNumber;
 
-        let mixArgument = newNumber * 64;
-        let mixingValue = mix(newNumber, mixArgument);
-        newNumber = mixingValue;
-
-        const pruneArgument = 16777216;
-        const prunedValue = prune(newNumber, pruneArgument);
-
-        newNumber = prunedValue;
-
-        mixArgument = Math.floor(newNumber / 32);
+        let mixArgument = newNumber * MIX_MULTIPLY_1;
         newNumber = mix(newNumber, mixArgument);
 
-        newNumber = prune(newNumber, pruneArgument);
+        newNumber = prune(newNumber, PRUNE_MODULUS);
 
-        let result = newNumber * 2048;
-        newNumber = mix(newNumber, result);
-        newNumber = prune(newNumber, pruneArgument);
+        mixArgument = Math.floor(newNumber / MIX_DIVIDE);
+        newNumber = mix(newNumber, mixArgument);
+
+        newNumber = prune(newNumber, PRUNE_MODULUS);
+
+        mixArgument = newNumber * MIX_MULTIPLY_2;
+        newNumber = mix(newNumber, mixArgument);
+        newNumber = prune(newNumber, PRUNE_MODULUS);
 
         secretNumber = newNumber;
     }
@@ -46,7 +47,54 @@ function secretNumberGenerator(initialValue: number, iterations: number): number
     return secretNumber;
 }
 
+function testPart1() {
+    const testCases = [
+        {
+            initialSecretNumber: 123,
+            iterations: 10,
+            expectedSecretNumber: 5908254,
+        },
+        {
+            initialSecretNumber: 1,
+            iterations: 2000,
+            expectedSecretNumber: 8685429,
+        },
+        {
+            initialSecretNumber: 10,
+            iterations: 2000,
+            expectedSecretNumber: 4700978,
+        },
+        {
+            initialSecretNumber: 100,
+            iterations: 2000,
+            expectedSecretNumber: 15273692,
+        },
+        {
+            initialSecretNumber: 2024,
+            iterations: 2000,
+            expectedSecretNumber: 8667524,
+        },
+    ];
+
+    for (const testCase of testCases) {
+        const { initialSecretNumber, iterations, expectedSecretNumber } = testCase;
+        const result = secretNumberGenerator(initialSecretNumber, iterations);
+        if (result !== expectedSecretNumber) {
+            console.error(
+                `❌ Test failed for initial value ${initialSecretNumber} with ${iterations} iterations: expected ${expectedSecretNumber}, got ${result}`
+            );
+        } else {
+            console.log(
+                `✅ Test passed for initial value ${initialSecretNumber} with ${iterations} iterations: got ${result}`
+            );
+        }
+    }
+}
+
 (() => {
+    testPart1();
+
+    return;
     const ITERATIONS = 2000;
     const secretNumberMapping = new Map<number, number>();
     for (const line of lines) {
