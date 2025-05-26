@@ -13,6 +13,69 @@ function modulo(a: number, b: number): number {
     return ((a % b) + b) % b;
 }
 
+type MonkeyBuyerData = {
+    initialSecretValue: number; // aka Monkey Buyer ID
+    computedSecretValue: number;
+    prices: number[];
+    changes: number[];
+};
+
+class TrieNode {
+    children: Map<number, TrieNode> = new Map();
+    sum: number = 0;
+    monkeys: Set<number> = new Set();
+}
+
+function buildTrie(allMonkeyBuyersData: MonkeyBuyerData[], seqLen = 4) {
+    const root = new TrieNode();
+
+    for (let monkeyIdx = 0; monkeyIdx < allMonkeyBuyersData.length; monkeyIdx++) {
+        const { prices, changes } = allMonkeyBuyersData[monkeyIdx];
+
+        for (let i = 0; i <= changes.length - seqLen; i++) {
+            let node = root;
+            let key = '';
+            for (let j = 0; j < seqLen; j++) {
+                const change = changes[i + j];
+                key += change + ',';
+                if (!node.children.has(change)) {
+                    node.children.set(change, new TrieNode());
+                }
+                node = node.children.get(change)!;
+            }
+            // Only count first occurrence per monkey
+            if (!node.monkeys.has(monkeyIdx)) {
+                node.monkeys.add(monkeyIdx);
+                node.sum += prices[i + seqLen];
+            }
+        }
+    }
+    return root;
+}
+
+function findBestSequence(root: TrieNode, seqLen = 4) {
+    let maxSum = -Infinity;
+    let bestSeq: number[] = [];
+
+    function dfs(node: TrieNode, path: number[]) {
+        if (path.length === seqLen) {
+            if (node.sum > maxSum) {
+                maxSum = node.sum;
+                bestSeq = [...path];
+            }
+            return;
+        }
+        for (const [change, child] of node.children) {
+            path.push(change);
+            dfs(child, path);
+            path.pop();
+        }
+    }
+
+    dfs(root, []);
+    return { bestSeq, maxSum };
+}
+
 const mix = bitwiseXOR;
 const prune = modulo;
 
@@ -44,13 +107,6 @@ function generateOneStepSecretNumber(initialSecret: number): number {
 function getLastDigit(number: number): number {
     return number % 10;
 }
-
-type MonkeyBuyerData = {
-    initialSecretValue: number; // aka Monkey Buyer ID
-    computedSecretValue: number;
-    prices: number[];
-    changes: number[];
-};
 
 function generateDataForMonkey(initialSecretValue: number, iterations: number): MonkeyBuyerData {
     const prices: number[] = [];
@@ -126,50 +182,6 @@ function testPart1() {
     console.log('\n\n');
 }
 
-function generateAllPossibleChangeSequences(): number[][] {
-    const allSequences: number[][] = [];
-    const min = -9;
-    const max = 9;
-
-    for (let c1 = min; c1 <= max; c1++) {
-        for (let c2 = min; c2 <= max; c2++) {
-            for (let c3 = min; c3 <= max; c3++) {
-                for (let c4 = min; c4 <= max; c4++) {
-                    allSequences.push([c1, c2, c3, c4]);
-                }
-            }
-        }
-    }
-
-    return allSequences;
-}
-
-function computeTotalBananasForSequence(targetSequence: number[], allMonkeyBuyersData: MonkeyBuyerData[]): number {
-    let totalBananas = 0;
-
-    for (const monkeyBuyer of allMonkeyBuyersData) {
-        const { prices, changes } = monkeyBuyer;
-
-        for (let i = 0; i < prices.length - targetSequence.length; i++) {
-            let isMatching = true;
-            for (let k = 0; k < targetSequence.length; k++) {
-                if (changes[i + k] !== targetSequence[k]) {
-                    isMatching = false;
-                    break;
-                }
-            }
-
-            if (isMatching) {
-                const sellingPrice = prices[i + targetSequence.length];
-                totalBananas += sellingPrice;
-                break;
-            }
-        }
-    }
-
-    return totalBananas;
-}
-
 (() => {
     testPart1();
     const initialSecretNumbers = lines.map((line) => parseInt(line, 10));
@@ -180,36 +192,11 @@ function computeTotalBananasForSequence(targetSequence: number[], allMonkeyBuyer
     //     console.log(`Monkey initialSecretValue: ${monkey.initialSecretValue}, | changes: ${monkey.changes.join(',')}`);
     // });
 
-    const allSequencesPossible = generateAllPossibleChangeSequences();
-
-    let maxBananas = -1;
-    let bestSequence: number[] | null = null;
-    let sequencesChecked = 0;
-
-    const totalSequencesToCheck = allSequencesPossible.length;
+    const trieRoot = buildTrie(allMonkeysData);
 
     const startTime = performance.now();
 
-    for (const targetSequence of allSequencesPossible) {
-        const totalBananas = computeTotalBananasForSequence(targetSequence, allMonkeysData);
-
-        if (totalBananas > maxBananas) {
-            maxBananas = totalBananas;
-            bestSequence = [...targetSequence];
-        }
-
-        sequencesChecked++;
-
-        if (sequencesChecked % 10000 === 0 || sequencesChecked === totalSequencesToCheck) {
-            const elapsedTime = performance.now() / 1000;
-            const percentComplete = (sequencesChecked / totalSequencesToCheck) * 100;
-            console.log(
-                `Checked ${sequencesChecked}/${totalSequencesToCheck} sequences (${percentComplete.toFixed(
-                    2
-                )}%). Current max bananas: ${maxBananas}. Elapsed: ${elapsedTime.toFixed(1)}s`
-            );
-        }
-    }
+    const { bestSeq, maxSum } = findBestSequence(trieRoot, 4);
 
     const endTime = performance.now();
     const executionTime = Math.round(endTime - startTime);
@@ -217,17 +204,12 @@ function computeTotalBananasForSequence(targetSequence: number[], allMonkeyBuyer
     console.log(`Total evaluation time: ${executionTime / 1000} seconds.`);
 
     console.log('\n--- Puzzle Solution ---');
-    if (bestSequence) {
-        console.log(`The best sequence of four price changes is: [${bestSequence.join(', ')}]`);
-        console.log(`This sequence yields a total of: ${maxBananas} bananas.`);
-    } else {
-        console.log('No profitable sequence found (or no buyers/data to process).');
-    }
+    console.log(`The best sequence of four price changes is: [${bestSeq.join(', ')}]`);
+    console.log(`This sequence yields a total of: ${maxSum} bananas.`);
 
-    let sumOfSecretNumbers = 0;
-    for (const monkey of allMonkeysData) {
-        sumOfSecretNumbers += monkey.computedSecretValue;
-    }
+    const sumOfSecretNumbers = allMonkeysData.reduce((acc, monkey) => {
+        return acc + monkey.computedSecretValue;
+    }, 0);
 
-    console.log(`Sum of ${ITERATIONS}th secret numbers of each Monkey = ${sumOfSecretNumbers}`);
+    console.log(`Sum of ${ITERATIONS}th secret numbers of each Monkey is ${sumOfSecretNumbers}`);
 })();
