@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <title>Interactive Trie Visualization</title>
+        <style>
+            body {
+                font-family: sans-serif;
+            }
+
+            .node circle {
+                fill: #69b3a2;
+                cursor: pointer;
+            }
+
+            .node text {
+                font: 12px sans-serif;
+            }
+
+            .link {
+                fill: none;
+                stroke: #555;
+                stroke-width: 1px;
+            }
+
+            .node--internal circle {
+                fill: #555;
+            }
+
+            .node--leaf circle {
+                fill: #ffb347;
+            }
+
+            .node--collapsed circle {
+                fill: #ccc;
+            }
+        </style>
+    </head>
+
+    <body>
+        <h2 style="text-align: center">Interactive Trie Visualization</h2>
+        <svg width="1700" height="800" style="border: 1px solid #ccc"></svg>
+        <script src="https://d3js.org/d3.v7.min.js"></script>
+        <script>
+            fetch('trie.json')
+                .then((response) => response.json())
+                .then((data) => {
+                    const width = 1700,
+                        height = 800;
+                    const svg = d3.select('svg').attr('width', width).attr('height', height);
+
+                    const g = svg.append('g');
+                    svg.call(
+                        d3
+                            .zoom()
+                            .scaleExtent([0.1, 2])
+                            .on('zoom', (event) => {
+                                g.attr('transform', event.transform);
+                            })
+                    );
+
+                    const linkGroup = g.append('g').attr('class', 'links');
+                    const nodeGroup = g.append('g').attr('class', 'nodes');
+
+                    const root = d3.hierarchy(data);
+                    root.x0 = height / 2;
+                    root.y0 = 0;
+
+                    function collapse(d) {
+                        if (d.children) {
+                            d._children = d.children;
+                            d._children.forEach(collapse);
+                            d.children = null;
+                        }
+                    }
+                    root.children && root.children.forEach(collapse);
+
+                    function update(source) {
+                        const treeLayout = d3.tree().size([height, width - 200]);
+                        treeLayout(root);
+
+                        const nodes = root.descendants();
+                        const links = root.links();
+
+                        nodes.forEach((d) => (d.y = d.depth * 180));
+
+                        const link = linkGroup.selectAll('path.link').data(links, (d) => d.target.id);
+
+                        const linkEnter = link
+                            .enter()
+                            .append('path')
+                            .attr('class', 'link')
+                            .attr('d', (d) => {
+                                const o = { x: source.x0, y: source.y0 };
+                                return diagonal({ source: o, target: o });
+                            });
+
+                        link.transition().duration(400).attr('d', diagonal);
+
+                        linkEnter.merge(link).transition().duration(400).attr('d', diagonal);
+
+                        link.exit()
+                            .transition()
+                            .duration(400)
+                            .attr('d', (d) => {
+                                const o = { x: source.x, y: source.y };
+                                return diagonal({ source: o, target: o });
+                            })
+                            .remove();
+
+                        const node = nodeGroup.selectAll('g.node').data(nodes, (d) => d.id || (d.id = Math.random()));
+
+                        const nodeEnter = node
+                            .enter()
+                            .append('g')
+                            .attr(
+                                'class',
+                                (d) =>
+                                    'node' +
+                                    (d.children ? ' node--internal' : d._children ? ' node--collapsed' : ' node--leaf')
+                            )
+                            .attr('transform', (d) => `translate(${source.y0},${source.x0})`)
+                            .on('click', (event, d) => {
+                                if (d.children) {
+                                    d._children = d.children;
+                                    d.children = null;
+                                } else if (d._children) {
+                                    d.children = d._children;
+                                    d._children = null;
+                                }
+                                update(d);
+                            });
+
+                        nodeEnter.append('circle').attr('r', 12);
+
+                        nodeEnter
+                            .append('text')
+                            .attr('dy', 3)
+                            .attr('x', (d) => (d.children || d._children ? -16 : 16))
+                            .style('text-anchor', (d) => (d.children || d._children ? 'end' : 'start'))
+                            .text((d) => d.data.name);
+
+                        const nodeUpdate = nodeEnter.merge(node);
+                        nodeUpdate
+                            .transition()
+                            .duration(400)
+                            .attr('transform', (d) => `translate(${d.y},${d.x})`);
+
+                        node.exit()
+                            .transition()
+                            .duration(400)
+                            .attr('transform', (d) => `translate(${source.y},${source.x})`)
+                            .remove();
+
+                        nodes.forEach((d) => {
+                            d.x0 = d.x;
+                            d.y0 = d.y;
+                        });
+                    }
+
+                    function diagonal(d) {
+                        return `M${d.source.y},${d.source.x}
+                            C${d.source.y + (d.target.y - d.source.y) / 2},${d.source.x}
+                            ${d.source.y + (d.target.y - d.source.y) / 2},${d.target.x}
+                            ${d.target.y},${d.target.x}`;
+                    }
+
+                    update(root);
+                });
+        </script>
+    </body>
+</html>

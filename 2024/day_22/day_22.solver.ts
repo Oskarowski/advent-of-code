@@ -182,6 +182,22 @@ function testPart1() {
     console.log('\n\n');
 }
 
+function trieToJson(node: TrieNode, label: string = 'root', depth: number = 0, maxDepth: number = 4): any {
+    if (depth > maxDepth) return null;
+
+    const children: any = [];
+    for (const [key, child] of node.children) {
+        const childJson = trieToJson(child, key.toString(), depth + 1, maxDepth);
+        if (childJson) children.push(childJson);
+    }
+    return {
+        name: label + (depth === maxDepth ? ` (sum: ${node.sum})` : ''),
+        sum: node.sum,
+        monkeys: node.monkeys.size,
+        children: children.length > 0 ? children : undefined,
+    };
+}
+
 (() => {
     testPart1();
     const initialSecretNumbers = lines.map((line) => parseInt(line, 10));
@@ -194,9 +210,12 @@ function testPart1() {
 
     const trieRoot = buildTrie(allMonkeysData);
 
+    const trieJson = trieToJson(trieRoot, 'root', 0, 4);
+    Bun.write('trie.json', JSON.stringify(trieJson, null, 2));
+
     const startTime = performance.now();
 
-    const { bestSeq, maxSum } = findBestSequence(trieRoot, 4);
+    const { bestSeq, maxSum } = findBestSequence(trieRoot, 2);
 
     const endTime = performance.now();
     const executionTime = Math.round(endTime - startTime);
