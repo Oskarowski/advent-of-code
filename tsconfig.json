@@ -1,15 +1,20 @@
 {
     "compilerOptions": {
-        "target": "ESNext",
+        "target": "esnext",
         "lib": ["ESNext"],
-        "module": "es2022",
-        "moduleResolution": "node",
+        "module": "preserve",
+        "moduleDetection": "force",
         "esModuleInterop": true,
         "forceConsistentCasingInFileNames": true,
         "strict": false,
         "sourceMap": true,
         "skipLibCheck": true,
-        "outDir": "./dist"
+        "outDir": "./dist",
+
+        "moduleResolution": "bundler",
+        "allowImportingTsExtensions": true,
+        "verbatimModuleSyntax": true,
+        "noEmit": true
     },
     "exclude": ["node_modules", "dist"]
 }
