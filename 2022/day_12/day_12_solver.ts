@@ -1,16 +1,15 @@
 // const rawData = await Bun.file(new URL('../data/day_12/t01.txt', import.meta.url)).text();
 const rawData = await Bun.file(new URL('../data/day_12/puzzle_input.txt', import.meta.url)).text();
-console.log(rawData);
 
 const lines = rawData.trim().split('\n');
 
-let start: [number, number] | null = null;
+const startPositions: [number, number][] = [];
 let end: [number, number] | null = null;
 
 const heightMap = lines.map((line, y) => {
     return line.split('').map((char, x) => {
         if (char === 'S') {
-            start = [x, y];
+            startPositions.push([x, y]);
             return 'a'.charCodeAt(0) - 'a'.charCodeAt(0);
         }
         if (char === 'E') {
@@ -18,75 +17,58 @@ const heightMap = lines.map((line, y) => {
             return 'z'.charCodeAt(0) - 'a'.charCodeAt(0);
         }
 
+        // For PART 2
+        if (char === 'a') {
+            startPositions.push([x, y]);
+            return 'a'.charCodeAt(0) - 'a'.charCodeAt(0);
+        }
+
         return char.charCodeAt(0) - 'a'.charCodeAt(0);
     });
 });
 
-if (!start || !end) {
+if (!end || startPositions.length === 0) {
     throw new Error('Upsik - totally nor correct');
 }
-console.log(`Start: ${start}, End: ${end}`);
+console.log(`Found ${startPositions.length} candidate start positions.`);
+console.log(`End: ${end}`);
 
 interface PathResult {
     steps: number;
     path: [number, number][];
 }
 
-const findShortestPath = (start: [number, number], end: [number, number], heightMap: number[][]): PathResult => {
-    const height = heightMap.length;
-    const width = heightMap[0].length;
+const totalWorkers = startPositions.length;
+let completedWorkers = 0;
 
-    const queue: [number, number, number][] = [[start[0], start[1], 0]];
+const workerPromises: Promise<{ start: [number, number]; result: PathResult }>[] = startPositions.map((start) => {
+    return new Promise<{ start: [number, number]; result: PathResult }>((resolve, reject) => {
+        const worker = new Worker(new URL('./path_finder_worker.ts', import.meta.url), { type: 'module' });
 
-    const visited = new Set<string>();
-    visited.add(`${start[0]},${start[1]}`);
+        worker.onmessage = (event) => {
+            completedWorkers++;
+            console.log(`Progress: ${completedWorkers}/${totalWorkers} workers finished`);
+            resolve({
+                start,
+                result: event.data as PathResult,
+            });
+            worker.terminate();
+        };
 
-    const prev = new Map<string, [number, number] | null>();
+        worker.onerror = (error) => {
+            completedWorkers++;
+            console.log(`Progress (with error): ${completedWorkers}/${totalWorkers} workers finished`);
+            reject(error);
+            worker.terminate();
+        };
 
-    const directions = [
-        [0, -1], // Up
-        [0, 1], // Down
-        [-1, 0], // Left
-        [1, 0], // Right
-    ];
+        worker.postMessage({ start, end, heightMap });
+    });
+});
 
-    while (queue.length > 0) {
-        const [x, y, steps] = queue.shift()!;
+const results: { start: [number, number]; result: PathResult }[] = await Promise.all(workerPromises);
 
-        if (x === end[0] && y === end[1]) {
-            let path: [number, number][] = [];
-            let current: [number, number] | null = [x, y];
-            while (current) {
-                path.push(current);
-                const key = `${current[0]},${current[1]}`;
-                current = prev.get(key) || null;
-            }
-            path.reverse();
-            return { steps, path };
-        }
+const validResults = results.filter((r) => r.result.steps !== -1);
 
-        for (const [dx, dy] of directions) {
-            const nx = x + dx;
-            const ny = y + dy;
-
-            if (nx >= 0 && nx < width && ny >= 0 && ny < height) {
-                const key = `${nx},${ny}`;
-                if (visited.has(key)) continue;
-
-                const diff = heightMap[ny][nx] - heightMap[y][x];
-                if (diff <= 1) {
-                    visited.add(key);
-                    queue.push([nx, ny, steps + 1]);
-                    prev.set(key, [x, y]);
-                }
-            }
-        }
-    }
-
-    return { steps: -1, path: [] };
-};
-
-const fewestStepsResult = findShortestPath(start, end, heightMap);
-
-console.log(`Part 1: Fewest steps from 'S' to 'E': ${fewestStepsResult.steps}`);
-console.log(`Path: ${fewestStepsResult.path.map((p) => `(${p[0]}, ${p[1]})`).join(' -> ')}`);
+validResults.sort((a, b) => a.result.steps - b.result.steps);
+console.log(`Part 2: Fewest steps from any 'a' to 'E': ${validResults[0].result.steps}`);
