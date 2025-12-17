@@ -56,7 +56,32 @@ function solvePart1(puzzleContent: string): number {
 console.log('Part 1 solution:', solvePart1(puzzleContent));
 
 function solvePart2(puzzleContent: string): number {
-    return -1;
+    const [rangesSection, _] = puzzleContent.split(/\r?\n\r?\n/);
+
+    const ranges = rangesSection
+        .split('\n')
+        .map((line) => {
+            const [start, end] = line.trim().split('-').map(Number);
+            return [start, end] as [number, number];
+        })
+        .sort((a, b) => a[0] - b[0]);
+
+    const mergedRanges: [number, number][] = [];
+
+    for (const [start, end] of ranges) {
+        if (mergedRanges.length === 0 || mergedRanges.at(-1)[1] < start - 1) {
+            mergedRanges.push([start, end]);
+        } else {
+            mergedRanges.at(-1)[1] = Math.max(mergedRanges.at(-1)[1], end);
+        }
+    }
+
+    let totalFreshIngredientCount = 0;
+    for (const [start, end] of mergedRanges) {
+        totalFreshIngredientCount += end - start + 1;
+    }
+
+    return totalFreshIngredientCount;
 }
 
-// console.log('Part 2 solution:', solvePart2(puzzleContent));
+console.log('Part 2 solution:', solvePart2(puzzleContent));
