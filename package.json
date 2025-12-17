@@ -1,19 +1,21 @@
 {
-  "name": "advent-of-code",
-  "private": true,
-  "type": "module",
-  "scripts": {
-    "cli": "node --loader ts-node/esm ./cli.ts"
-  },
-  "dependencies": {
-    "chalk": "^5.3.0",
-    "inquirer": "^9.1.5"
-  },
-  "devDependencies": {
-    "@types/bun": "^1.2.14",
-    "@types/inquirer": "^9.0.3",
-    "@types/node": "^20.14.12",
-    "ts-node": "^10.9.2",
-    "typescript": "^5.7.3"
-  }
+    "name": "advent-of-code",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "cli": "node --loader ts-node/esm ./cli.ts",
+        "progress:update": "bun run scripts/generate-progress-summary.ts",
+        "progress:install-hook": "powershell -ExecutionPolicy Bypass -File scripts/install-git-hook.ps1"
+    },
+    "dependencies": {
+        "chalk": "^5.3.0",
+        "inquirer": "^9.1.5"
+    },
+    "devDependencies": {
+        "@types/bun": "^1.2.14",
+        "@types/inquirer": "^9.0.3",
+        "@types/node": "^20.14.12",
+        "ts-node": "^10.9.2",
+        "typescript": "^5.7.3"
+    }
 }
