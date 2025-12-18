@@ -1,39 +1,6 @@
-# 🎄 Advent of Code
+# 🎯 Advent of Code Progress
 
-To install dependencies:
-
-```bash
-bun install
-```
-
-To run:
-
-```bash
-bun run cli
-```
-
-## 🎯 Progress Tracking
-
-This repository includes automated progress tracking for all Advent of Code years.
-
-### Quick Commands
-
-```bash
-# Update progress summary (run after completing challenges)
-bun run progress:update
-
-# Install git pre-commit hook (auto-updates on commit)
-bun run progress:install-hook
-```
-
-### How It Works
-
-- Each year has a [`README.md`](README.md ) with a table tracking completed (⭐), failed (❌), and pending (⏳) challenges
-- Run `bun run progress:update` to scan all year READMEs and generate a summary
-- The summary shows total stars, progress bars, and detailed breakdowns
-- Install the git hook to automatically update progress when committing README changes
-
-## 🎯 Advent of Code Progress
+🎯 Advent of Code Progress
 
 ## Overall Progress: 86/174 ⭐
 
