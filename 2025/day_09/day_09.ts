@@ -1,4 +1,4 @@
-const puzzleContent = await Bun.file('./t.txt')
+const puzzleContent = await Bun.file('./p.txt')
     .text()
     .then((d) => d.trim());
 
@@ -96,35 +96,42 @@ function floodFillOutside(grid: string[][]) {
 }
 
 function solvePart2(puzzleContent: string): number {
+    console.log('Parsing points from input');
     const points = puzzleContent.split('\n').map((line) =>
         line
             .trim()
             .split(',')
             .map((e) => Number.parseInt(e, 10))
     );
+    console.log('Points parsed:', points.length);
 
     let width = -Infinity;
     let height = -Infinity;
-    points.forEach(([x, y]) => {
+    for (const [x, y] of points) {
         if (x > width) width = x;
         if (y > height) height = y;
-    });
+    }
     width += 1;
     height += 1;
+    console.log('Grid dimensions determined:', width, height);
 
     const grid = Array.from({ length: height }, () => Array.from({ length: width }, () => '.'));
+    console.log('Grid initialized');
 
     points.forEach(([x, y]) => {
         grid[y][x] = '#';
     });
+    console.log('Points marked on grid');
 
     for (let i = 0; i < points.length; i++) {
         const [x1, y1] = points[i];
         const [x2, y2] = points[(i + 1) % points.length];
         drawLine(grid, x1, y1, x2, y2);
     }
+    console.log('Lines drawn on grid');
 
     floodFillOutside(grid);
+    console.log('Flood fill completed');
 
     for (let y = 0; y < height; y++) {
         for (let x = 0; x < width; x++) {
@@ -135,6 +142,7 @@ function solvePart2(puzzleContent: string): number {
             }
         }
     }
+    console.log('Grid finalized');
 
     const binaryValueMap = grid.map((line) => line.map((e) => (e === '#' || e === 'X' ? 1 : 0)));
     const sumTable = Array.from({ length: height }, () => Array.from({ length: width }, () => 0));
@@ -148,6 +156,7 @@ function solvePart2(puzzleContent: string): number {
                 (x > 0 && y > 0 ? sumTable[y - 1][x - 1] : 0);
         }
     }
+    console.log('Prefix sum table computed');
 
     let maxValidArea = -Infinity;
 
