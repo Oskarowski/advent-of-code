@@ -2,6 +2,10 @@ const puzzleContent = await Bun.file('./t.txt')
     .text()
     .then((d) => d.trim());
 
+const computeArea = (x1: number, y1: number, x2: number, y2: number) => {
+    return (Math.abs(x1 - x2) + 1) * (Math.abs(y1 - y2) + 1);
+};
+
 function solvePart1(puzzleContent: string): number {
     const points = puzzleContent.split('\n').map((line) =>
         line
@@ -9,10 +13,6 @@ function solvePart1(puzzleContent: string): number {
             .split(',')
             .map((e) => Number.parseInt(e, 10))
     );
-
-    const computeArea = (x1: number, y1: number, x2: number, y2: number) => {
-        return (Math.abs(x1 - x2) + 1) * (Math.abs(y1 - y2) + 1);
-    };
 
     let maxArea = -Infinity;
     for (let i = 0; i < points.length; i++) {
@@ -29,35 +29,18 @@ function solvePart1(puzzleContent: string): number {
 
 // console.log('Part 1 solution:', solvePart1(puzzleContent));
 
-/*
-    Draw a line on a grid using Bresenham's line algorithm
-    @see https://www.geeksforgeeks.org/dsa/bresenhams-line-generation-algorithm
-*/
 function drawLine(grid: string[][], x1: number, y1: number, x2: number, y2: number) {
-    let dx = Math.abs(x2 - x1);
-    let dy = Math.abs(y2 - y1);
-    const sx = x1 < x2 ? 1 : -1;
-    const sy = y1 < y2 ? 1 : -1;
-    let err = dx - dy;
-
-    let x = x1;
-    let y = y1;
-
-    while (true) {
-        if (!(x === x1 && y === y1) && !(x === x2 && y === y2)) {
-            if (grid[y][x] !== '#') {
-                grid[y][x] = 'X';
-            }
+    if (x1 === x2) {
+        const startY = Math.min(y1, y2);
+        const endY = Math.max(y1, y2);
+        for (let y = startY; y <= endY; y++) {
+            if (grid[y][x1] === '.') grid[y][x1] = 'X';
         }
-        if (x === x2 && y === y2) break;
-        const e2 = 2 * err;
-        if (e2 > -dy) {
-            err -= dy;
-            x += sx;
-        }
-        if (e2 < dx) {
-            err += dx;
-            y += sy;
+    } else {
+        const startX = Math.min(x1, x2);
+        const endX = Math.max(x1, x2);
+        for (let x = startX; x <= endX; x++) {
+            if (grid[y1][x] === '.') grid[y1][x] = 'X';
         }
     }
 }
@@ -129,8 +112,6 @@ function solvePart2(puzzleContent: string): number {
     width += 1;
     height += 1;
 
-    console.log(`Width: ${width}, Height: ${height}`);
-
     const grid = Array.from({ length: height }, () => Array.from({ length: width }, () => '.'));
 
     points.forEach(([x, y]) => {
@@ -155,9 +136,44 @@ function solvePart2(puzzleContent: string): number {
         }
     }
 
-    console.table(grid);
+    const binaryValueMap = grid.map((line) => line.map((e) => (e === '#' || e === 'X' ? 1 : 0)));
+    const sumTable = Array.from({ length: height }, () => Array.from({ length: width }, () => 0));
 
-    return -1;
+    for (let y = 0; y < sumTable.length; y++) {
+        for (let x = 0; x < sumTable[0].length; x++) {
+            sumTable[y][x] =
+                binaryValueMap[y][x] +
+                (y > 0 ? sumTable[y - 1][x] : 0) +
+                (x > 0 ? sumTable[y][x - 1] : 0) -
+                (x > 0 && y > 0 ? sumTable[y - 1][x - 1] : 0);
+        }
+    }
+
+    let maxValidArea = -Infinity;
+
+    for (let i = 0; i < points.length; i++) {
+        const [x1, y1] = points[i];
+        for (let j = i + 1; j < points.length - 1; j++) {
+            const [x2, y2] = points[j];
+            const expectedArea = computeArea(x1, y1, x2, y2);
+
+            if (expectedArea < maxValidArea) continue;
+
+            const xMax = Math.max(x1, x2);
+            const xMin = Math.min(x1, x2);
+            const yMax = Math.max(y1, y2);
+            const yMin = Math.min(y1, y2);
+
+            const cArea =
+                sumTable[yMax][xMax] -
+                sumTable[yMin - 1][xMax] -
+                sumTable[yMax][xMin - 1] +
+                sumTable[yMin - 1][xMin - 1];
+
+            if (cArea === expectedArea) maxValidArea = expectedArea;
+        }
+    }
+
+    return maxValidArea;
 }
-
 console.log('Part 2 solution:', solvePart2(puzzleContent));
