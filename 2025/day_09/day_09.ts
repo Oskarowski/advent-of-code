@@ -27,7 +27,7 @@ function solvePart1(puzzleContent: string): number {
     return maxArea;
 }
 
-// console.log('Part 1 solution:', solvePart1(puzzleContent));
+console.log('Part 1 solution:', solvePart1(puzzleContent));
 
 function drawLine(grid: string[][], x1: number, y1: number, x2: number, y2: number) {
     if (x1 === x2) {
