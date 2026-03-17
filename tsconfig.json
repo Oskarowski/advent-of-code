@@ -12,6 +12,7 @@
         "outDir": "./dist",
 
         "moduleResolution": "bundler",
+        "types": ["bun", "node"],
         "allowImportingTsExtensions": true,
         "verbatimModuleSyntax": true,
         "noEmit": true
