@@ -196,7 +196,7 @@ bun run progress:install-hook
 
 async function main() {
     const basePath = process.cwd();
-    const years = [2022, 2023, 2024, 2025];
+    const years = [2020, 2022, 2023, 2024, 2025];
 
     const yearProgressPromises = years.map((year) => analyzeYear(year, basePath));
 
