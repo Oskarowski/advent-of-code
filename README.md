@@ -35,13 +35,13 @@ bun run progress:install-hook
 
 ## 🎯 Advent of Code Progress
 
-## Overall Progress: 99/274 ⭐
+## Overall Progress: 100/274 ⭐
 
 ### Years Overview
 
 | Year | Progress | Stars | Status |
 |:----:|:--------:|:-----:|:------:|
-| [2019](2019/) | █░░░░░░░░░ 10% | 5/50 | 🌱 |
+| [2019](2019/) | █░░░░░░░░░ 12% | 6/50 | 🌱 |
 | [2020](2020/) | ░░░░░░░░░░ 8% | 4/50 | 🌱 |
 | [2022](2022/) | ░░░░░░░░░░ 8% | 4/50 | 🌱 |
 | [2023](2023/) | ██████░░░░ 62% | 31/50 | 💪 |
@@ -50,7 +50,7 @@ bun run progress:install-hook
 
 ### Detailed Progress
 
-#### 2019 (5/50 ⭐)
+#### 2019 (6/50 ⭐)
 
 <details>
 <summary>View all days</summary>
@@ -60,7 +60,7 @@ bun run progress:install-hook
 | 01 | ⭐ | ⭐ |
 | 02 | ⭐ | ⭐ |
 | 03 | ⭐ | ⏳ |
-| 04 | ⏳ | ⏳ |
+| 04 | ⭐ | ⏳ |
 | 05 | ⏳ | ⏳ |
 | 06 | ⏳ | ⏳ |
 | 07 | ⏳ | ⏳ |
@@ -265,4 +265,4 @@ bun run progress:install-hook
 
 **Legend:** ⭐ Solved & Verified &nbsp; ❌ Failed &nbsp; ⏳ Unsolved
 
-*Last updated: 2026-05-02*
+*Last updated: 2026-05-09*
