@@ -2,13 +2,13 @@
 
 🎯 Advent of Code Progress
 
-## Overall Progress: 101/274 ⭐
+## Overall Progress: 102/274 ⭐
 
 ### Years Overview
 
 | Year | Progress | Stars | Status |
 |:----:|:--------:|:-----:|:------:|
-| [2019](2019/) | █░░░░░░░░░ 14% | 7/50 | 🌱 |
+| [2019](2019/) | █░░░░░░░░░ 16% | 8/50 | 🌱 |
 | [2020](2020/) | ░░░░░░░░░░ 8% | 4/50 | 🌱 |
 | [2022](2022/) | ░░░░░░░░░░ 8% | 4/50 | 🌱 |
 | [2023](2023/) | ██████░░░░ 62% | 31/50 | 💪 |
@@ -17,7 +17,7 @@
 
 ### Detailed Progress
 
-#### 2019 (7/50 ⭐)
+#### 2019 (8/50 ⭐)
 
 <details>
 <summary>View all days</summary>
@@ -29,7 +29,7 @@
 | 03 | ⭐ | ⏳ |
 | 04 | ⭐ | ⭐ |
 | 05 | ⏳ | ⏳ |
-| 06 | ⏳ | ⏳ |
+| 06 | ⭐ | ⏳ |
 | 07 | ⏳ | ⏳ |
 | 08 | ⏳ | ⏳ |
 | 09 | ⏳ | ⏳ |
@@ -232,4 +232,4 @@
 
 **Legend:** ⭐ Solved & Verified &nbsp; ❌ Failed &nbsp; ⏳ Unsolved
 
-*Last updated: 2026-05-09*
+*Last updated: 2026-06-04*
