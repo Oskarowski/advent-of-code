@@ -16,7 +16,6 @@ type Planet struct {
 }
 
 func SolvePart1(puzzleInput []string) int {
-
 	galaxyTree := make(map[string]*Planet)
 	for _, line := range puzzleInput {
 		info := strings.Split(strings.TrimSpace(line), ")")
@@ -53,6 +52,47 @@ func SolvePart1(puzzleInput []string) int {
 	return totalGalaxyTraverseCost
 }
 
+func SolvePart2(puzzleInput []string) int {
+	galaxyTree := make(map[string]*Planet)
+	for _, line := range puzzleInput {
+		info := strings.Split(strings.TrimSpace(line), ")")
+		p1, p2 := info[0], info[1]
+		planet1, ok := galaxyTree[p1]
+		if !ok {
+			planet1 = &Planet{Name: p1, Cost: 0}
+			galaxyTree[p1] = planet1
+		}
+
+		planet2, ok := galaxyTree[p2]
+		if !ok {
+			planet2 = &Planet{Name: p2, Cost: 0}
+			galaxyTree[p2] = planet2
+		}
+
+		planet1.Orbiting = append(planet1.Orbiting, planet2)
+		planet2.Center = planet1
+	}
+
+	distance := map[*Planet]int{}
+
+	steps := 0
+	for p := galaxyTree["YOU"].Center; p != nil; p = p.Center {
+		distance[p] = steps
+		steps++
+	}
+
+	steps = 0
+	for p := galaxyTree["SAN"].Center; p != nil; p = p.Center {
+		if d, ok := distance[p]; ok {
+			return d + steps
+		}
+
+		steps++
+	}
+
+	return -1
+}
+
 func main() {
 	_, file, _, _ := runtime.Caller(0)
 	dir := filepath.Dir(file)
@@ -66,6 +106,8 @@ func main() {
 	puzzleInput := strings.Split(strings.TrimSpace(string(fileData)), "\n")
 
 	solvedPuzzle1 := SolvePart1(puzzleInput)
+	solvedPuzzle2 := SolvePart2(puzzleInput)
 
 	fmt.Printf("Part 1: %d\n", solvedPuzzle1)
+	fmt.Printf("Part 2: %d\n", solvedPuzzle2)
 }
